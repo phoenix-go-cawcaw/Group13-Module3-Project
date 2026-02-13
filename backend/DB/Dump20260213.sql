@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: hobbyinabox
 -- ------------------------------------------------------
--- Server version	8.0.43
+-- Server version	8.0.44
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -59,11 +59,10 @@ CREATE TABLE `checkout` (
   `status` enum('pending','completed','cancelled') DEFAULT 'pending',
   `payment_method` varchar(50) DEFAULT NULL,
   `owner_name` varchar(100) DEFAULT NULL,
-  `card_number` int DEFAULT NULL,
-  `expiry_date` varchar(6) DEFAULT NULL,
-  `security_code` varchar(4) DEFAULT NULL,
   `voucher_code` varchar(50) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `payment_status` enum('pending','paid','failed','cancelled') DEFAULT 'pending',
+  `transaction_id` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `checkout_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
@@ -77,6 +76,35 @@ CREATE TABLE `checkout` (
 LOCK TABLES `checkout` WRITE;
 /*!40000 ALTER TABLE `checkout` DISABLE KEYS */;
 /*!40000 ALTER TABLE `checkout` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `payments`
+--
+
+DROP TABLE IF EXISTS `payments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `payments` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `checkout_id` int NOT NULL,
+  `provider` varchar(50) NOT NULL,
+  `transaction_id` varchar(100) DEFAULT NULL,
+  `status` enum('pending','paid','failed','cancelled') DEFAULT 'pending',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `checkout_id` (`checkout_id`),
+  CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`checkout_id`) REFERENCES `checkout` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `payments`
+--
+
+LOCK TABLES `payments` WRITE;
+/*!40000 ALTER TABLE `payments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `payments` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -119,7 +147,7 @@ CREATE TABLE `shipping_options` (
   `country` varchar(100) NOT NULL,
   `address` varchar(100) NOT NULL,
   `city` varchar(100) NOT NULL,
-  `pronvince` varchar(100) NOT NULL,
+  `province` varchar(100) NOT NULL,
   `postalcode` varchar(100) NOT NULL,
   `phonenumber` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
@@ -199,4 +227,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-02-12 13:48:09
+-- Dump completed on 2026-02-13 12:18:55
