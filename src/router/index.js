@@ -1,12 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { isAuthenticated } from '@/utils/auth'
-import HomeView from '../views/Home.vue'
-import LoginView from '../login.vue'
+
 import AuthenticatedLayout from '../layouts/AuthenticatedLayout.vue'
-import AboutView from '@/views/AboutView.vue'
-import Payfast from '@/views/Payfast.vue'
-import Checkout from '@/views/Checkout.vue'
-import Review from '@/views/Review.vue'
+import About from '../views/About.vue'
+import Checkout from '../views/Checkout.vue'
+import Confirmation from '../views/Confirmation.vue'
+import Home from '../views/Home.vue'
+import Login from '../views/login.vue'
+import Payfast from '../views/Payfast.vue'
+import PaymentSuccess from '../views/PaymentSuccess.vue'
+import Pricing from '../views/Pricing.vue'
+import Products from '../views/Products.vue'
+import Review from '../views/Review.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,7 +19,7 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: LoginView,
+      component: Login,
     },
     {
       path: '/',
@@ -24,32 +29,47 @@ const router = createRouter({
         {
           path: '',
           name: 'home',
-          component: HomeView,
+          component: Home,
         },
         {
           path: 'about',
           name: 'about',
-          component: () => import('../views/About.vue'),
+          component: About,
         },
         {
           path: 'products',
           name: 'products',
-          component: () => import('../views/Products.vue'),
-        },
-        {
-          path: 'checkout',
-          name: 'checkout',
-          component: () => import('../views/Checkout.vue'),
+          component: Products,
         },
         {
           path: 'pricing',
           name: 'pricing',
-          component: () => import('../views/Pricing.vue'),
+          component: Pricing,
+        },
+        {
+          path: 'checkout',
+          name: 'checkout',
+          component: Checkout,
+        },
+        {
+          path: 'review',
+          name: 'review',
+          component: Review,
+        },
+        {
+          path: 'payfast',
+          name: 'payfast',
+          component: Payfast,
+        },
+        {
+          path: 'payment-success',
+          name: 'payment-success',
+          component: PaymentSuccess,
         },
         {
           path: 'confirmation',
           name: 'confirmation',
-          component: () => import('../views/Confirmation.vue'),
+          component: Confirmation,
         },
       ],
     },
