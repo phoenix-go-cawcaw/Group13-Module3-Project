@@ -1,10 +1,39 @@
 <script setup>
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import heroBg from '../assets/Hobby in a Box.png'
+import { ref, onMounted } from 'vue'
+
+const route = useRoute()
+const router = useRouter()
+
+const showWelcome = ref(false)
+const welcomeMessage = ref('')
+
+onMounted(() => {
+  if (route.query.welcome === 'back') {
+    welcomeMessage.value = 'Welcome Back!'
+    showWelcome.value = true
+  }
+
+  if (route.query.welcome === 'new') {
+    welcomeMessage.value = 'Welcome!'
+    showWelcome.value = true
+  }
+
+  if (showWelcome.value) {
+    setTimeout(() => {
+      showWelcome.value = false
+      router.replace({ path: '/' })
+    }, 3000)
+  }
+})
 </script>
 
 <template>
-  <main class="home-bg py-4">
+  <main class="home-bg gradient-bg py-4">
+    <div v-if="showWelcome" class="welcome-banner">
+      {{ welcomeMessage }}
+    </div>
     <div class="container h-100">
       <div class="row align-items-center g-4 h-100">
         <div class="col-12 col-lg-7">
@@ -47,8 +76,8 @@ import heroBg from '../assets/Hobby in a Box.png'
 }
 
 .home-bg {
-  min-height: 80vh;
-  padding: 2rem 2rem;
+  min-height: 100vh;
+  padding: 2rem;
   display: flex;
   align-items: flex-start;
 }
@@ -58,4 +87,38 @@ import heroBg from '../assets/Hobby in a Box.png'
   width: 100%;
   object-fit: contain;
 }
+
+.gradient-bg {
+  background-image: url(https://img.freepik.com/free-vector/blurred-light-background-design_1107-160.jpg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.welcome-banner {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #5c4033;
+  color: white;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: bold;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  z-index: 9999;
+  animation: slideDown 0.4s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
 </style>

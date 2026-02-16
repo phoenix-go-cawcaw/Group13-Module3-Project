@@ -5,9 +5,11 @@ import { clearAuthenticated } from '@/utils/auth'
 const router = useRouter()
 
 function handleLogout() {
-  clearAuthenticated()
-  router.push('/login')
+  localStorage.removeItem('token')
+  sessionStorage.removeItem('token')
+  router.replace({ name: 'login' })
 }
+
 </script>
 
 <template>

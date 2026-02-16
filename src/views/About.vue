@@ -56,16 +56,16 @@
 .about {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;   /* stack children vertically */
-  align-items: center;      /* horizontal center */
-  justify-content: center;  /* vertical center */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
 ul {
-  text-align: left;        /* aligns list words neatly */
-  padding-left: 1.25rem;   /* keeps bullets/indent clean */
-  margin: 0 auto;          /* centers the whole list block */
+  text-align: left;
+  padding-left: 1.25rem;
+  margin: 0 auto;
   width: fit-content
 }
 </style>
