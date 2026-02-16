@@ -13,6 +13,7 @@ function handleLogout() {
 <template>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
+      <img src="c:\Users\YC Student\Downloads\Hobby in a Box.png" alt="" style="height: 65px;">
       <RouterLink class="navbar-brand brand-title" to="/">
         Hobby in a Box
       </RouterLink>
