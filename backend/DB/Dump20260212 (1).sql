@@ -119,10 +119,9 @@ CREATE TABLE `products` (
   `product_name` varchar(100) NOT NULL,
   `description` text,
   `price` decimal(10,2) NOT NULL,
-  `image_url` varchar(255) DEFAULT NULL,
   `category` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`product_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -131,6 +130,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
+INSERT INTO `products` VALUES (1,'The Watercolorist Box','A curated watercolor kit including paints, brushes, and premium paper for creative exploration.',549.00,'Arts & DIY'),(2,'The Maker\'s Studio Box','A hands-on DIY craft box featuring materials such as clay, crochet yarn, or leatherworking supplies.',599.00,'Arts & DIY'),(3,'Green Living Starter Box','A sustainable gardening kit with seasonal seeds, organic soil pods, fertilizer, and a ceramic pot.',499.00,'Green Living'),(4,'STEM Explorer Box','A child-friendly STEM kit containing materials for a guided monthly science experiment.',459.00,'Education'),(5,'Culinary Discovery Box','A global culinary experience featuring unique spices and authentic recipes from a featured country.',529.00,'Culinary');
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -175,10 +175,9 @@ CREATE TABLE `subscription_plans` (
   `name` varchar(100) NOT NULL,
   `description` text,
   `price` decimal(10,2) NOT NULL,
-  `duration_months` int NOT NULL,
   `features` text,
   PRIMARY KEY (`plan_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=830 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -187,6 +186,7 @@ CREATE TABLE `subscription_plans` (
 
 LOCK TABLES `subscription_plans` WRITE;
 /*!40000 ALTER TABLE `subscription_plans` DISABLE KEYS */;
+INSERT INTO `subscription_plans` VALUES (312,'Arts & DIY Subscription','A monthly creative subscription delivering curated arts and DIY hobby kits.',449.00,'Monthly curated box, step-by-step guides, access to exclusive tutorials'),(487,'Green Living Subscription','A sustainable living subscription focused on eco-friendly gardening and green practices.',399.00,'Seasonal seeds, organic materials, sustainable packaging'),(654,'STEM Explorer Subscription','An educational monthly STEM subscription designed for children.',369.00,'Hands-on science experiments, educational guides, safe materials'),(829,'Culinary Discovery Subscription','A monthly culinary subscription delivering spices and recipes from a new country.',429.00,'Authentic spices, cultural recipes, monthly country theme');
 /*!40000 ALTER TABLE `subscription_plans` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -227,4 +227,8 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
+<<<<<<<< HEAD:backend/DB/Dump20260213.sql
 -- Dump completed on 2026-02-13 12:18:55
+========
+-- Dump completed on 2026-02-13 14:42:19
+>>>>>>>> c96b7081debbe85667502c9248c5bd887d0d26a1:backend/DB/Dump20260212 (1).sql
