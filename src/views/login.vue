@@ -1,41 +1,64 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 const router = useRouter()
 
+const username = ref('')
 const email = ref('')
 const password = ref('')
+const rememberMe = ref(false)
+
 const isLogin = ref(true)
 const errorMessage = ref('')
 const isOpening = ref(false)
 const isOpened = ref(false)
 
-function toggleMode() {
-  isLogin.value = !isLogin.value
-  errorMessage.value = ''
-}
+// AUTO-LOGIN
+onMounted(() => {
+  const token =
+    localStorage.getItem('token') ||
+    sessionStorage.getItem('token')
+
+  if (token) {
+    router.push('/')
+  }
+})
 
 async function handleSubmit() {
-  if (!email.value || !password.value) {
-    errorMessage.value = 'Shipment requires email and password.'
+  if (!email.value || !password.value || (!isLogin.value && !username.value)) {
+    errorMessage.value = 'Shipment requires all fields.'
     return
   }
 
   try {
     isOpening.value = true
+    errorMessage.value = ''
 
     const endpoint = isLogin.value
-      ? 'http://localhost:5000/api/auth/login'
-      : 'http://localhost:5000/api/auth/register'
+      ? 'http://localhost:5000/auth/login'
+      : 'http://localhost:5000/auth/register'
 
-    const response = await axios.post(endpoint, {
-      email: email.value,
-      password: password.value
-    })
+    const payload = isLogin.value
+      ? {
+          email: email.value,
+          password: password.value
+        }
+      : {
+          username: username.value,
+          email: email.value,
+          password: password.value
+        }
 
-    localStorage.setItem('token', response.data.token)
+    const response = await axios.post(endpoint, payload)
+
+    // REMEMBER ME SCRIPT
+    if (rememberMe.value) {
+      localStorage.setItem('token', response.data.token)
+    } else {
+      sessionStorage.setItem('token', response.data.token)
+    }
 
     setTimeout(() => {
       isOpened.value = true
@@ -57,41 +80,53 @@ async function handleSubmit() {
   <main class="login-page d-flex align-items-center justify-content-center">
     <div class="table-surface"></div>
 
-    <section
-      class="box-card"
-      :class="{ opening: isOpening, opened: isOpened }"
-    >
+    <section class="box-card" :class="{ opening: isOpening, opened: isOpened }">
       <div class="box-flap" @click="isOpening = true"></div>
 
       <div class="box-content">
         <h1 class="box-title">Hobby in a Box</h1>
 
         <div class="mode-switch">
-          <button
-            :class="{ active: isLogin }"
-            @click="isLogin = true"
-          >
+          <button :class="{ active: isLogin }" @click="isLogin = true">
             Login
           </button>
-          <button
-            :class="{ active: !isLogin }"
-            @click="isLogin = false"
-          >
+          <button :class="{ active: !isLogin }" @click="isLogin = false">
             Register
           </button>
         </div>
 
         <form @submit.prevent="handleSubmit">
+
+          <!-- REGISTER -->
+          <div v-if="!isLogin" class="mb-3">
+            <label>Username</label>
+            <input v-model="username" type="text" class="form-control box-input" />
+          </div>
+
           <div class="mb-3">
             <label>Email</label>
-            <input v-model="email" type="email" class="form-control box-input">
+            <input v-model="email" type="email" class="form-control box-input" />
           </div>
 
           <div class="mb-3">
             <label>Password</label>
-            <input v-model="password" type="password" class="form-control box-input">
+            <input v-model="password" type="password" class="form-control box-input" />
           </div>
 
+          <!-- REMEMBER ME -->
+          <div class="form-check mb-2">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="remember"
+              v-model="rememberMe"
+            />
+            <label class="form-check-label" for="remember">
+              Remember Me
+            </label>
+          </div>
+
+          <!-- Error Message -->
           <div v-if="errorMessage" class="shipping-label">
             {{ errorMessage }}
           </div>
@@ -99,12 +134,12 @@ async function handleSubmit() {
           <button class="btn box-button w-100 mt-3" type="submit">
             {{ isLogin ? 'Open Box' : 'Create Box' }}
           </button>
+
         </form>
       </div>
     </section>
   </main>
 </template>
-
 
 <style scoped>
 .login-page {
@@ -118,7 +153,7 @@ async function handleSubmit() {
   bottom: 80px;
   width: 500px;
   height: 40px;
-  background: radial-gradient(ellipse at center, rgba(0,0,0,0.2), transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.2), transparent 70%);
   filter: blur(6px);
 }
 
@@ -136,8 +171,8 @@ async function handleSubmit() {
   background-image:
     repeating-linear-gradient(
       45deg,
-      rgba(255,255,255,0.03) 0px,
-      rgba(255,255,255,0.03) 2px,
+      rgba(255, 255, 255, 0.03) 0px,
+      rgba(255, 255, 255, 0.03) 2px,
       transparent 2px,
       transparent 6px
     );
