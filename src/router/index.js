@@ -5,7 +5,7 @@ import About from "../views/About.vue";
 import Checkout from "../views/Checkout.vue";
 import Confirmation from "../views/Confirmation.vue";
 import Home from "../views/Home.vue";
-import Login from "../views/Login.vue";
+import Login from "../views/login.vue";
 import Payfast from "../views/Payfast.vue";
 import PaymentSuccess from "../views/PaymentSuccess.vue";
 import Pricing from "../views/Pricing.vue";
