@@ -4,6 +4,9 @@
 -- ------------------------------------------------------
 -- Server version	8.0.44
 
+CREATE DATABASE IF NOT EXISTS hobbyinabox;
+USE hobbyinabox;
+
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -31,7 +34,7 @@ CREATE TABLE `cart` (
   PRIMARY KEY (`id`),
   KEY `fk1_user_id` (`user_id`),
   KEY `fk2_product_id` (`product_id`),
-  CONSTRAINT `fk1_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `fk1_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk2_product_id` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -65,7 +68,7 @@ CREATE TABLE `checkout` (
   `transaction_id` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
-  CONSTRAINT `checkout_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+  CONSTRAINT `checkout_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -94,7 +97,7 @@ CREATE TABLE `payments` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `checkout_id` (`checkout_id`),
-  CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`checkout_id`) REFERENCES `checkout` (`id`)
+  CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`checkout_id`) REFERENCES `checkout` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -226,9 +229,3 @@ UNLOCK TABLES;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
-<<<<<<<< HEAD:backend/DB/Dump20260213.sql
--- Dump completed on 2026-02-13 12:18:55
-========
--- Dump completed on 2026-02-13 14:42:19
->>>>>>>> c96b7081debbe85667502c9248c5bd887d0d26a1:backend/DB/Dump20260212 (1).sql
