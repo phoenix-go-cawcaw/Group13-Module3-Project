@@ -1,3 +1,7 @@
+<script setup>
+import hobbyLogo from '../assets/Hobby in a Box.png'
+</script>
+
 <template>
 
   <main class="about-bg py-4">
@@ -30,10 +34,9 @@
     </ul>
   </h4>
  </div>
-  
+ 
+ <img :src="hobbyLogo" alt="Hobby in a Box Logo" class="logo">
 
-
-<img src="c:\Users\YC Student\Downloads\Hobby in a Box.png" alt="" class="logo">
   </main>
 </template>
 
