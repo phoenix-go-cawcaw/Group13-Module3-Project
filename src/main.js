@@ -8,8 +8,6 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'primeicons/primeicons.css'
 import './assets/main.css'
 
-
-
 const app = createApp(App)
 
 app.use(router)
