@@ -35,7 +35,7 @@ CREATE TABLE `cart` (
   KEY `fk1_user_id` (`user_id`),
   KEY `fk2_product_id` (`product_id`),
   CONSTRAINT `fk1_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk2_product_id` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`)
+  CONSTRAINT `fk2_product_id` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -50,7 +50,8 @@ UNLOCK TABLES;
 
 --
 -- Table structure for table `checkout`
---
+-- CLEANED: Removed payment-related fields (payment_status, transaction_id, payment_method, owner_name)
+-- These now belong exclusively in the payments table
 
 DROP TABLE IF EXISTS `checkout`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -60,12 +61,8 @@ CREATE TABLE `checkout` (
   `user_id` int NOT NULL,
   `total_amount` decimal(10,2) NOT NULL,
   `status` enum('pending','completed','cancelled') DEFAULT 'pending',
-  `payment_method` varchar(50) DEFAULT NULL,
-  `owner_name` varchar(100) DEFAULT NULL,
   `voucher_code` varchar(50) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `payment_status` enum('pending','paid','failed','cancelled') DEFAULT 'pending',
-  `transaction_id` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `checkout_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
@@ -83,7 +80,9 @@ UNLOCK TABLES;
 
 --
 -- Table structure for table `payments`
---
+-- EXPANDED: Now includes all payment-specific fields
+-- payment_method and owner_name moved from checkout
+-- Allows multiple payment attempts per checkout
 
 DROP TABLE IF EXISTS `payments`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -92,6 +91,8 @@ CREATE TABLE `payments` (
   `id` int NOT NULL AUTO_INCREMENT,
   `checkout_id` int NOT NULL,
   `provider` varchar(50) NOT NULL,
+  `payment_method` varchar(50) DEFAULT NULL,
+  `owner_name` varchar(100) DEFAULT NULL,
   `transaction_id` varchar(100) DEFAULT NULL,
   `status` enum('pending','paid','failed','cancelled') DEFAULT 'pending',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -224,7 +225,7 @@ UNLOCK TABLES;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
