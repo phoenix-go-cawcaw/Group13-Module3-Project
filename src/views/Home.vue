@@ -40,6 +40,7 @@ import heroBg from '../assets/Hobby in a Box.png'
 .pi-cart-plus,
 .pi-box {
   font-size: 1.25rem;
+  line-height: 1.4;
 }
 
 .steps {
@@ -47,15 +48,28 @@ import heroBg from '../assets/Hobby in a Box.png'
 }
 
 .home-bg {
+  background-image: url(https://img.freepik.com/free-vector/blurred-light-background-design_1107-160.jpg?t=st=1770904010~exp=1770907610~hmac=0a26e817aab791674c21f016c9f7242727292ad2fe329935bb71ced6b81d2517);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  padding: 2rem;
   min-height: 80vh;
   padding: 2rem 2rem;
-  display: flex;
-  align-items: flex-start;
+
 }
 
 .hero-image {
   max-height: 500px;
   width: 100%;
   object-fit: contain;
+}
+
+.btn {
+  margin-top: auto;
+  display: flex;
+  gap: 10px;
+  justify-content: center;   
+  width: 50%;
 }
 </style>
