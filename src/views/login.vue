@@ -421,7 +421,6 @@ button:active {
   animation-delay: -8s;
 }
 
-/* Icon styling */
 .icon-wrapper svg {
   width: 42px;
   height: 42px;

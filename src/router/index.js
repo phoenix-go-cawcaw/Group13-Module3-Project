@@ -70,6 +70,16 @@ const router = createRouter({
           name: "confirmation",
           component: Confirmation,
         },
+        {
+          path: "/checkout",
+          name: "checkout",
+          component: Checkout,
+        },
+        {
+          path: "/review",
+          name: "review",
+          component: Review,
+        },
       ],
     },
     {
