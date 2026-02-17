@@ -10,17 +10,37 @@
     "format": "oxfmt src/"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.17.1",
     "vue": "^3.5.27",
     "vue-router": "^5.0.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.3",
     "@vitejs/plugin-vue-jsx": "^5.1.3",
+    "nodemon": "^3.1.11",
     "oxfmt": "^0.27.0",
     "vite": "^7.3.1",
     "vite-plugin-vue-devtools": "^8.0.5"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
-  }
+  },
+  "description": "This template should help get you started developing with Vue 3 in Vite.",
+  "main": "vite.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phoenix-go-cawcaw/Group13-Module3-Project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/phoenix-go-cawcaw/Group13-Module3-Project/issues"
+  },
+  "homepage": "https://github.com/phoenix-go-cawcaw/Group13-Module3-Project#readme"
 }
