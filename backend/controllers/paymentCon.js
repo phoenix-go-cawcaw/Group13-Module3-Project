@@ -69,18 +69,15 @@ export const handleITN = async (req, res) => {
 
     const data = { ...req.body };
 
-    // 1️⃣ Extract and remove signature
     const receivedSignature = data.signature;
     delete data.signature;
 
-    // 2️⃣ Generate signature
     const generatedSignature = generateSignature(data);
     if (receivedSignature !== generatedSignature) {
       console.error("Invalid signature");
       return res.status(400).send("Invalid signature");
     }
 
-    // 3️⃣ Confirm merchant ID matches yours
     if (data.merchant_id !== process.env.PAYFAST_MERCHANT_ID) {
       console.error("Merchant ID mismatch:", {
         received: data.merchant_id,
@@ -90,7 +87,6 @@ export const handleITN = async (req, res) => {
       return res.status(400).send("Merchant mismatch");
     }
 
-    // 4️⃣ Validate with PayFast server
     const validationResponse = await axios.post(
       process.env.PAYFAST_VALIDATE_URL,
       new URLSearchParams(req.body).toString(),
@@ -104,7 +100,6 @@ export const handleITN = async (req, res) => {
       return res.status(400).send("Invalid ITN validation");
     }
 
-    // 5️⃣ Get checkout ID
     const checkoutId = data.m_payment_id;
 
     const [rows] = await pool.execute(
@@ -127,7 +122,6 @@ export const handleITN = async (req, res) => {
       return res.status(400).send("Amount mismatch");
     }
 
-    // 6️⃣ Only update if payment is COMPLETE
     if (data.payment_status === "COMPLETE") {
       await pool.execute(
         `UPDATE payments
@@ -146,7 +140,6 @@ export const handleITN = async (req, res) => {
       console.log("Payment marked as COMPLETE:", checkoutId);
     }
 
-    // 7️⃣ Respond OK
     return res.status(200).send("OK");
   } catch (error) {
     console.error("ITN Error:", error);

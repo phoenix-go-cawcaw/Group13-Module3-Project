@@ -118,11 +118,11 @@ const pricingPlans = [
 }
 
 .pricing-bg {
-  padding-top: 1 rem;   /* smaller top padding */
+  padding-top: 1 rem;
 }
 
 .pricing-title {
-  margin-top: -7rem;   /* moves h2 up */
+  margin-top: -7rem;
 }
 
 </style>

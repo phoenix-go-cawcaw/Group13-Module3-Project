@@ -1,27 +1,32 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
+import axios from 'axios'
 
 const router = useRouter()
 
 const form = ref({
-  fullName: '',
-  email: '',
+  name: '',
+  country: '',
   address: '',
   city: '',
-  postalCode: ''
+  province: '',
+  postalcode: '',
+  phonenumber: ''
 })
 
-function goToReview() {
-  router.push({
-    name: 'review',
-    query: {
-      name: form.value.fullName,
-      email: form.value.email
-    }
-  })
+async function goToReview() {
+  try {
+    await axios.post("http://localhost:5000/shipping", form.value)
+
+    router.push({ name: 'review' })
+
+  } catch (error) {
+    console.error(error)
+  }
 }
 </script>
+
 
 <template>
   <div class="container py-5">
@@ -29,32 +34,40 @@ function goToReview() {
 
     <div class="card shadow p-4">
       <form @submit.prevent="goToReview">
-        
+
         <div class="mb-3">
-          <label class="form-label">Full Name</label>
-          <input v-model="form.fullName" type="text" class="form-control" required />
+          <label>Name</label>
+          <input v-model="form.name" type="text" class="form-control" required />
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Email</label>
-          <input v-model="form.email" type="email" class="form-control" required />
+          <label>Country</label>
+          <input v-model="form.country" type="text" class="form-control" required />
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Address</label>
+          <label>Address</label>
           <input v-model="form.address" type="text" class="form-control" required />
         </div>
 
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label class="form-label">City</label>
-            <input v-model="form.city" type="text" class="form-control" required />
-          </div>
+        <div class="mb-3">
+          <label>City</label>
+          <input v-model="form.city" type="text" class="form-control" required />
+        </div>
 
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Postal Code</label>
-            <input v-model="form.postalCode" type="text" class="form-control" required />
-          </div>
+        <div class="mb-3">
+          <label>Province</label>
+          <input v-model="form.province" type="text" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+          <label>Postal Code</label>
+          <input v-model="form.postalcode" type="text" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+          <label>Phone Number</label>
+          <input v-model="form.phonenumber" type="text" class="form-control" required />
         </div>
 
         <button class="btn btn-dark w-100 mt-3">

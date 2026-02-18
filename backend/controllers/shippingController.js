@@ -7,7 +7,7 @@ export const addShippingOption = async (req, res) => {
       country,
       address,
       city,
-      pronvince,
+      province,
       postalcode,
       phonenumber
     } = req.body;
@@ -17,12 +17,13 @@ export const addShippingOption = async (req, res) => {
 
     await db.query(
       `INSERT INTO shipping_options
-       (name, country, address, city, pronvince, postalcode, phonenumber)
+       (name, country, address, city, province, postalcode, phonenumber)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [name, country, address, city, pronvince, postalcode, phonenumber]
+      [name, country, address, city, province, postalcode, phonenumber]
     );
 
     res.status(201).json({ message: "Shipping information saved" });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -15,7 +15,6 @@ function handleLogout() {
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
 
-      <!-- Logo -->
       <img
         :src="hobbyLogo"
         alt="Hobby in a Box Logo"

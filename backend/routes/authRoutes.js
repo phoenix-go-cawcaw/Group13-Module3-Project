@@ -14,7 +14,7 @@ router.post("/register", async (req, res) => {
   }
 
   try {
-    // Check if user exists
+    // Checks if user exists
     const [existingUser] = await pool.query(
       "SELECT * FROM users WHERE email = ?",
       [normalizedEmail]
@@ -24,16 +24,16 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ message: "User already exists" })
     }
 
-    // Hash password
+    // Hashes password
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    // Insert user
+    // Inserts user
     await pool.query(
       "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
       [username, normalizedEmail, hashedPassword]
     )
 
-    // Generate JWT
+    // Generates JWT
     const token = jwt.sign(
       { email: normalizedEmail },
       process.env.JWT_SECRET,
@@ -73,7 +73,7 @@ router.post("/login", async (req, res) => {
     if (isBcryptHash) {
       match = await bcrypt.compare(password, user.password)
     } else {
-      // Backward compatibility for legacy plain-text rows; rehash on success.
+      // Backward compatibility for legacy plain-text rows
       match = password === user.password
       if (match) {
         const upgradedHash = await bcrypt.hash(password, 10)

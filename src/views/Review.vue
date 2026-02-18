@@ -41,9 +41,7 @@ const handlePayNow = async () => {
   } catch (err) {
     console.error(err);
   }
-
 };
-
 
 </script>
 
