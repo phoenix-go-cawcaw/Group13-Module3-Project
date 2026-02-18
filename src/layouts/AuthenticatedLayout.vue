@@ -1,23 +1,33 @@
 <script setup>
 import { RouterLink, RouterView, useRouter } from 'vue-router'
-import { clearAuthenticated } from '@/utils/auth'
+import hobbyLogo from '../assets/HobbyinaBox.png'
 
 const router = useRouter()
 
 function handleLogout() {
-  clearAuthenticated()
-  router.push('/login')
+  localStorage.removeItem('token')
+  sessionStorage.removeItem('token')
+  router.replace({ name: 'login' })
 }
 </script>
 
 <template>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-      <img src="c:\Users\YC Student\Downloads\Hobby in a Box.png" alt="" style="height: 65px;">
-      <RouterLink class="navbar-brand brand-title" to="/">
+
+      <!-- Logo -->
+      <img
+        :src="hobbyLogo"
+        alt="Hobby in a Box Logo"
+        style="height: 65px;"
+        class="me-2"
+      />
+
+      <RouterLink class="navbar-brand brand-title me-auto" to="/">
         Hobby in a Box
       </RouterLink>
-      <ul class="navbar-nav ms-auto align-items-lg-center">
+
+      <ul class="navbar-nav ms-auto me-0 align-items-lg-center gap-lg-2">
         <li class="nav-item">
           <RouterLink class="nav-link" to="/">Home</RouterLink>
         </li>
@@ -31,13 +41,19 @@ function handleLogout() {
           <RouterLink class="nav-link" to="/pricing">Pricing</RouterLink>
         </li>
         <li class="nav-item ms-lg-2">
-          <button class="btn btn-sm btn-outline-light" type="button" @click="handleLogout">
+          <button
+            class="btn btn-sm btn-outline-light"
+            type="button"
+            @click="handleLogout"
+          >
             Logout
           </button>
         </li>
       </ul>
+
     </div>
   </nav>
+
   <RouterView />
 </template>
 
@@ -47,7 +63,7 @@ function handleLogout() {
 }
 
 .brand-title {
-  color: #000000;
+  color: #ffffff;
   font-weight: 800;
   text-decoration: none;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande',
@@ -62,4 +78,6 @@ function handleLogout() {
   text-decoration: underline;
   text-underline-offset: 4px;
 }
+
+
 </style>

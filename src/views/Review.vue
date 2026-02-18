@@ -1,35 +1,45 @@
 <script setup>
-import { useRouter } from "vue-router"
-import { ref } from "vue"
+import { useRoute, useRouter } from 'vue-router'
 
+const route = useRoute()
 const router = useRouter()
 
-// Temporary mock cart (replace with store later)
-const cartItems = ref([])
-
-const subtotal = cartItems.value.reduce(
-  (sum, item) => sum + item.price * item.qty,
-  0
-)
-
-const goToCheckout = () => {
-  router.push("/checkout")
+function confirmOrder() {
+  // Later this will trigger PayFast
+  alert("Order Confirmed! Next step: Payment integration.")
 }
 </script>
 
 <template>
-  <div class="container">
-    <h2>Review Your Order</h2>
+  <div class="container py-5">
+    <h2 class="text-center mb-4">Review Your Order</h2>
 
-    <div v-for="item in cartItems" :key="item.id" class="item">
-      <p>{{ item.name }} (x{{ item.qty }})</p>
-      <p>R{{ item.price }}</p>
+    <div class="card shadow p-4">
+      
+      <h5>Customer Details</h5>
+      <p><strong>Name:</strong> {{ route.query.name }}</p>
+      <p><strong>Email:</strong> {{ route.query.email }}</p>
+
+      <hr />
+
+      <h5>Order Summary (Placeholder)</h5>
+      <ul>
+        <li>Hobby Box – R299.00</li>
+        <li>Shipping – R50.00</li>
+      </ul>
+
+      <h4 class="mt-3">Total: R349.00</h4>
+
+      <div class="d-flex gap-3 mt-4">
+        <button class="btn btn-outline-secondary w-50" @click="router.back()">
+          Back to Checkout
+        </button>
+
+        <button class="btn btn-success w-50" @click="confirmOrder">
+          Confirm & Pay
+        </button>
+      </div>
+
     </div>
-
-    <h3>Subtotal: R{{ subtotal }}</h3>
-
-    <button @click="goToCheckout">
-      Proceed to Checkout
-    </button>
   </div>
 </template>

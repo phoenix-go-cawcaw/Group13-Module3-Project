@@ -1,19 +1,48 @@
 <script setup>
-import { RouterLink } from 'vue-router'
-import heroBg from '../assets/Hobby in a Box.png'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
+import heroBg from '../assets/HobbyinaBox.png'
+import { ref, onMounted } from 'vue'
+
+const route = useRoute()
+const router = useRouter()
+
+const showWelcome = ref(false)
+const welcomeMessage = ref('')
+
+onMounted(() => {
+  if (route.query.welcome === 'back') {
+    welcomeMessage.value = 'Welcome Back!'
+    showWelcome.value = true
+  }
+
+  if (route.query.welcome === 'new') {
+    welcomeMessage.value = 'Welcome!'
+    showWelcome.value = true
+  }
+
+  if (showWelcome.value) {
+    setTimeout(() => {
+      showWelcome.value = false
+      router.replace({ path: '/' })
+    }, 3000)
+  }
+})
 </script>
 
 <template>
-  <main class="home-bg py-4">
+  <main class="home-bg gradient-bg py-4">
+    <div v-if="showWelcome" class="welcome-banner">
+      {{ welcomeMessage }}
+    </div>
     <div class="container h-100">
       <div class="row align-items-center g-4 h-100">
         <div class="col-12 col-lg-7">
-          <h1 class="display-6 fw-bold">Welcome to Hobby in a Box!</h1>
+          <h1 class="display-5 fw-bold">Welcome to Hobby in a Box!</h1>
           <br>
           <p class="lead text-body-secondary"><strong>Curated hobby boxes delivered to your door - explore creativity,
               learning, and culture.</strong>
           </p>
-          <div class="d-flex gap-2 mt-3">
+          <div class="hero-actions d-flex gap-2 mt-3 justify-content-center flex-wrap">
             <RouterLink class="btn btn-success" to="/products">Browse Products</RouterLink>
             <RouterLink class="btn btn-success" to="/pricing">View Pricing</RouterLink>
           </div>
@@ -55,8 +84,8 @@ import heroBg from '../assets/Hobby in a Box.png'
   min-height: 100vh;
   padding: 2rem;
   min-height: 80vh;
-  padding: 2rem 2rem;
-
+  display: flex;
+  align-items: flex-start;
 }
 
 .hero-image {
@@ -65,11 +94,8 @@ import heroBg from '../assets/Hobby in a Box.png'
   object-fit: contain;
 }
 
-.btn {
-  margin-top: auto;
-  display: flex;
-  gap: 10px;
-  justify-content: center;   
-  width: 50%;
+.hero-actions .btn {
+  min-width: 160px;
+  text-align: center;
 }
 </style>

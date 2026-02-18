@@ -1,103 +1,67 @@
 <script setup>
-import { ref } from "vue"
-import axios from "axios"
+import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 
-const fullName = ref("")
-const email = ref("")
-const phone = ref("")
-const country = ref("")
-const city = ref("")
-const state = ref("")
-const zip = ref("")
+const router = useRouter()
 
-// Replace with real cart total later using stores or smth
-const subtotal = 45
-const shipping = 5
-const discount = 10
-const total = subtotal + shipping - discount
+const form = ref({
+  fullName: '',
+  email: '',
+  address: '',
+  city: '',
+  postalCode: ''
+})
 
-const startPayment = async () => {
-  try {
-    const response = await axios.post(
-      "http://localhost:5000/payments/payfast/create",
-      { //Mock cart, Remove after stores have been implemented
-        user_id: 1,
-        total_amount: total
-      }
-    )
-
-    window.location.href = response.data.redirectUrl
-
-  } catch (error) {
-    console.error(error)
-  }
+function goToReview() {
+  router.push({
+    name: 'review',
+    query: {
+      name: form.value.fullName,
+      email: form.value.email
+    }
+  })
 }
 </script>
 
 <template>
-  <div class="checkout-container">
+  <div class="container py-5">
+    <h2 class="mb-4 text-center">Checkout</h2>
 
-    <div class="left">
-      <h2>Checkout</h2>
+    <div class="card shadow p-4">
+      <form @submit.prevent="goToReview">
+        
+        <div class="mb-3">
+          <label class="form-label">Full Name</label>
+          <input v-model="form.fullName" type="text" class="form-control" required />
+        </div>
 
-      <h3>Shipping Information</h3>
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input v-model="form.email" type="email" class="form-control" required />
+        </div>
 
-      <input v-model="fullName" placeholder="Full name" />
-      <input v-model="email" placeholder="Email address" />
-      <input v-model="phone" placeholder="Phone number" />
-      <input v-model="country" placeholder="Country" />
-      <input v-model="city" placeholder="City" />
-      <input v-model="state" placeholder="State" />
-      <input v-model="zip" placeholder="ZIP Code" />
+        <div class="mb-3">
+          <label class="form-label">Address</label>
+          <input v-model="form.address" type="text" class="form-control" required />
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">City</label>
+            <input v-model="form.city" type="text" class="form-control" required />
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Postal Code</label>
+            <input v-model="form.postalCode" type="text" class="form-control" required />
+          </div>
+        </div>
+
+        <button class="btn btn-dark w-100 mt-3">
+          Continue to Review
+        </button>
+
+      </form>
     </div>
-
-    <div class="right">
-      <h3>Review your cart</h3>
-
-      <p>Subtotal: R{{ subtotal }}</p>
-      <p>Shipping: R{{ shipping }}</p>
-      <p>Discount: -R{{ discount }}</p>
-      <h3>Total: R{{ total }}</h3>
-
-      <button @click="startPayment">
-        Pay Now
-      </button>
-    </div>
-
   </div>
 </template>
-
-<style>
-.checkout-container {
-  display: flex;
-  gap: 50px;
-  padding: 40px;
-}
-
-.left {
-  flex: 2;
-}
-
-.right {
-  flex: 1;
-  background: #f7f7f7;
-  padding: 20px;
-}
-
-input {
-  display: block;
-  margin: 10px 0;
-  padding: 10px;
-  width: 100%;
-}
-
-button {
-  background: #3b5bfd;
-  color: white;
-  padding: 12px;
-  width: 100%;
-  border: none;
-  cursor: pointer;
-}
-
-</style>
