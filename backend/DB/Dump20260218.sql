@@ -93,7 +93,7 @@ CREATE TABLE `products` (
   `price` decimal(10,2) NOT NULL,
   `category` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -102,7 +102,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (1,'The Watercolorist Box','A curated watercolor kit including paints, brushes, and premium paper for creative exploration.',549.00,'Arts & DIY'),(2,'The Maker\'s Studio Box','A hands-on DIY craft box featuring materials such as clay, crochet yarn, or leatherworking supplies.',599.00,'Arts & DIY'),(3,'Green Living Starter Box','A sustainable gardening kit with seasonal seeds, organic soil pods, fertilizer, and a ceramic pot.',499.00,'Green Living'),(4,'STEM Explorer Box','A child-friendly STEM kit containing materials for a guided monthly science experiment.',459.00,'Education'),(5,'Culinary Discovery Box','A global culinary experience featuring unique spices and authentic recipes from a featured country.',529.00,'Culinary');
+INSERT INTO `products` VALUES (1,'The Watercolorist Box','A curated watercolor kit including paints, brushes, and premium paper for creative exploration.',549.00,'Arts & DIY'),(2,'Crochet Starter Box','A creative crochet kit featuring premium yarn, crochet hooks, and a guided pattern to help beginners create their own handmade project.',499.00,'Arts & DIY'),(3,'Green Living Starter Box','A sustainable gardening kit with seasonal seeds, organic soil pods, fertilizer, and a ceramic pot.',499.00,'Green Living'),(4,'STEM Explorer Box','A child-friendly STEM kit containing materials for a guided monthly science experiment.',459.00,'Education'),(5,'Culinary Discovery Box','A global culinary experience featuring unique spices and authentic recipes from a featured country.',529.00,'Culinary'),(6,'Leatherworking Craft Box','A beginner-friendly leatherworking kit including pre-cut leather pieces, stitching tools, thread, and step-by-step instructions to create a handcrafted accessory.',629.00,'Arts & DIY');
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -158,7 +158,7 @@ CREATE TABLE `subscription_plans` (
 
 LOCK TABLES `subscription_plans` WRITE;
 /*!40000 ALTER TABLE `subscription_plans` DISABLE KEYS */;
-INSERT INTO `subscription_plans` VALUES (312,'Arts & DIY Subscription','A monthly creative subscription delivering curated arts and DIY hobby kits.',449.00,'Monthly curated box, step-by-step guides, access to exclusive tutorials'),(487,'Green Living Subscription','A sustainable living subscription focused on eco-friendly gardening and green practices.',399.00,'Seasonal seeds, organic materials, sustainable packaging'),(654,'STEM Explorer Subscription','An educational monthly STEM subscription designed for children.',369.00,'Hands-on science experiments, educational guides, safe materials'),(829,'Culinary Discovery Subscription','A monthly culinary subscription delivering spices and recipes from a new country.',429.00,'Authentic spices, cultural recipes, monthly country theme');
+INSERT INTO `subscription_plans` VALUES (312,'Arts & DIY Subscription','A monthly creative subscription delivering curated arts and DIY hobby kits.',449.00,'Monthly curated box, step-by-step guides, access to exclusive tutorials'),(487,'Green Living Subscription','A sustainable living subscription focused on eco-friendly gardening and green practices.',399.00,'Seasonal seeds, organic materials, sustainable packaging'),(505,'Premium All-Access Plan','The ultimate plan for hobby enthusiasts! Subscribers receive two boxes each month: one from any chosen hobby category and one flexible surprise box of choice.',899.00,'Two boxes per month, priority support & member perks, exclusive limited-edition boxes, early release theme reveals'),(654,'STEM Explorer Subscription','An educational monthly STEM subscription designed for children.',369.00,'Hands-on science experiments, educational guides, safe materials'),(707,'School Discovery Plan','A tailored monthly subscription for schools, designed to support classroom learning in arts, STEM, and creative projects for approximately 30 students.',3499.00,'Monthly classroom kits, teaching guides, online resources for educators, optional training webinars'),(829,'Culinary Discovery Subscription','A monthly culinary subscription delivering spices and recipes from a new country.',429.00,'Authentic spices, cultural recipes, monthly country theme');
 /*!40000 ALTER TABLE `subscription_plans` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -199,4 +199,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-02-13 14:42:19
+-- Dump completed on 2026-02-18 14:45:00
