@@ -13,13 +13,7 @@ function generateSignature(data) {
     })
     .join("&");
 
-  if (process.env.PAYFAST_PASSPHRASE) {
-    pfOutput += `&passphrase=${encodeURIComponent(
-      process.env.PAYFAST_PASSPHRASE,
-    ).replace(/%20/g, "+")}`;
-  }
-
-  console.log("FINAL RAW SIGN STRING:", pfOutput);
+  // console.log("FINAL RAW SIGN STRING:", pfOutput);
 
   return crypto.createHash("md5").update(pfOutput).digest("hex");
 }
@@ -51,9 +45,7 @@ export const createPayfast = async (req, res) => {
       merchant_key: process.env.PAYFAST_MERCHANT_KEY,
       return_url: "http://localhost:5173/payment-success",
       cancel_url: "http://localhost:5173/payment-cancel",
-      notify_url:
-        "https://sylas-indorsable-epifania.ngrok-free.dev/payfast/itn",
-      m_payment_id: checkoutId,
+      m_payment_id: checkoutId.toString(),
       amount: amount,
       item_name: "Hobby Box Test",
       email_address: "test@test.com",
@@ -83,7 +75,6 @@ export const handleITN = async (req, res) => {
 
     // 2️⃣ Generate signature
     const generatedSignature = generateSignature(data);
-
     if (receivedSignature !== generatedSignature) {
       console.error("Invalid signature");
       return res.status(400).send("Invalid signature");
@@ -105,7 +96,7 @@ export const handleITN = async (req, res) => {
       new URLSearchParams(req.body).toString(),
       {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      }
+      },
     );
 
     if (validationResponse.data !== "VALID") {
@@ -118,7 +109,7 @@ export const handleITN = async (req, res) => {
 
     const [rows] = await pool.execute(
       "SELECT total_amount FROM checkout WHERE id = ?",
-      [checkoutId]
+      [checkoutId],
     );
 
     if (!rows.length) {
@@ -142,14 +133,14 @@ export const handleITN = async (req, res) => {
         `UPDATE payments
          SET status = ?, transaction_id = ?
          WHERE checkout_id = ?`,
-        ["paid", data.pf_payment_id, checkoutId]
+        ["paid", data.pf_payment_id, checkoutId],
       );
 
       await pool.execute(
         `UPDATE checkout
          SET status = 'completed'
          WHERE id = ?`,
-        [checkoutId]
+        [checkoutId],
       );
 
       console.log("Payment marked as COMPLETE:", checkoutId);
@@ -157,10 +148,51 @@ export const handleITN = async (req, res) => {
 
     // 7️⃣ Respond OK
     return res.status(200).send("OK");
-
   } catch (error) {
     console.error("ITN Error:", error);
     return res.status(500).send("ITN processing error");
   }
 };
 
+export const confirmPayment = async (req, res) => {
+  try {
+    const { checkoutId, payment_status, pf_payment_id, amount } = req.body;
+
+    const [rows] = await pool.execute(
+      "SELECT total_amount FROM checkout WHERE id = ?",
+      [checkoutId],
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    const dbAmount = parseFloat(rows[0].total_amount).toFixed(2);
+    const payfastAmount = parseFloat(amount).toFixed(2);
+
+    if (dbAmount !== payfastAmount) {
+      return res.status(400).json({ error: "Amount mismatch" });
+    }
+
+    if (payment_status === "COMPLETE") {
+      await pool.execute(
+        `UPDATE payments
+         SET status = 'paid', transaction_id = ?
+         WHERE checkout_id = ?`,
+        [pf_payment_id, checkoutId],
+      );
+
+      await pool.execute(
+        `UPDATE checkout
+         SET status = 'completed'
+         WHERE id = ?`,
+        [checkoutId],
+      );
+    }
+
+    res.json({ message: "Payment updated successfully" });
+  } catch (error) {
+    console.error("Confirm error:", error);
+    res.status(500).json({ error: "Confirm failed" });
+  }
+};

@@ -37,6 +37,7 @@ onMounted(() => {
     })
   }
 
+  window.addEventListener('mousemove', mouseHandler)
 })
 
 onBeforeUnmount(() => {
@@ -73,6 +74,8 @@ async function handleSubmit() {
       sessionStorage.setItem('token', response.data.token)
     }
 
+    isOpened.value = true
+
     setTimeout(() => {
       router.push({
         path: '/',
@@ -84,6 +87,7 @@ async function handleSubmit() {
 
   } catch (err) {
     isOpening.value = false
+    password.value = ''
     errorMessage.value =
       err.response?.data?.message || 'Delivery failed. Try again.'
   }

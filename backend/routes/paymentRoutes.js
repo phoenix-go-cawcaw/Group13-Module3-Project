@@ -1,11 +1,13 @@
 import express from 'express';
 import {
     createPayfast,
-    handleITN
+    handleITN,
+    confirmPayment
 } from "../controllers/paymentCon.js";
 
 const router = express.Router();
 
+router.post("/confirm", confirmPayment);
 router.post("/create", createPayfast);
 router.post("/itn", handleITN);
 

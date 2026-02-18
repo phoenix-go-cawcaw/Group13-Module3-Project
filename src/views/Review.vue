@@ -21,7 +21,7 @@ const handlePayNow = async () => {
     });
 
     const data = await response.json();
-    console.log("PAYFAST RESPONSE:", data);
+    // console.log("PAYFAST paymentData:", data.paymentData);
 
     const form = document.createElement("form");
     form.method = "POST";
