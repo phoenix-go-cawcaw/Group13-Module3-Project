@@ -4,10 +4,47 @@ import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 
-function confirmOrder() {
-  // Later this will trigger PayFast
-  alert("Order Confirmed! Next step: Payment integration.")
-}
+const userId = 4
+const totalAmount = "349.00"
+const voucherCode = null
+
+const handlePayNow = async () => {
+  try {
+    const response = await fetch("http://localhost:5000/payfast/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: userId,
+        total_amount: totalAmount,
+        voucher_code: voucherCode
+      })
+    });
+
+    const data = await response.json();
+    console.log("PAYFAST RESPONSE:", data);
+
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = data.payfastUrl;
+
+    Object.entries(data.paymentData).forEach(([key, value]) => {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = value;
+      form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+
+  } catch (err) {
+    console.error(err);
+  }
+
+};
+
+
 </script>
 
 <template>
@@ -15,7 +52,7 @@ function confirmOrder() {
     <h2 class="text-center mb-4">Review Your Order</h2>
 
     <div class="card shadow p-4">
-      
+
       <h5>Customer Details</h5>
       <p><strong>Name:</strong> {{ route.query.name }}</p>
       <p><strong>Email:</strong> {{ route.query.email }}</p>
@@ -35,7 +72,7 @@ function confirmOrder() {
           Back to Checkout
         </button>
 
-        <button class="btn btn-success w-50" @click="confirmOrder">
+        <button class="btn btn-success w-50" @click="handlePayNow">
           Confirm & Pay
         </button>
       </div>

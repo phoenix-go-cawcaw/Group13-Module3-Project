@@ -7,10 +7,11 @@ import Confirmation from "../views/Confirmation.vue";
 import Home from "../views/Home.vue";
 import Login from "../views/login.vue";
 import Payfast from "../views/Payfast.vue";
-import PaymentSuccess from "../views/PaymentSuccess.vue";
 import Pricing from "../views/Pricing.vue";
 import Products from "../views/Products.vue";
 import Review from "../views/Review.vue";
+import PaymentSuccess from "../views/PaymentSuccess.vue";
+import PaymentCancel from "../views/PaymentCancel.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -61,24 +62,19 @@ const router = createRouter({
           component: Payfast,
         },
         {
-          path: "payment-success",
-          name: "payment-success",
-          component: PaymentSuccess,
-        },
-        {
           path: "confirmation",
           name: "confirmation",
           component: Confirmation,
         },
         {
-          path: "/checkout",
-          name: "checkout",
-          component: Checkout,
+          path: "/payment-success",
+          name: "payment-success",
+          component: PaymentSuccess
         },
         {
-          path: "/review",
-          name: "review",
-          component: Review,
+          path: "/payment-cancel",
+          name: "payment-cancel",
+          component: PaymentCancel
         },
       ],
     },
