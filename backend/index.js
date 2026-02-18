@@ -14,8 +14,11 @@ app.use(cors({
   credentials: true
 }));
 
+//Global json for every other route except PayFast ITN
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+//middleware JUST for PayFast ITN
+app.use("/payfast/itn", express.urlencoded({ extended: false }));
 
 app.use("/auth", authRoutes);
 app.use("/payfast", paymentRoutes);
