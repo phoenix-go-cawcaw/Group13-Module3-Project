@@ -1,5 +1,5 @@
 <script setup>
-import hobbyLogo from '../assets/Hobby in a Box.png'
+import hobbyLogo from '../assets/HobbyinaBox.png'
 </script>
 
 <template>

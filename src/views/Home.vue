@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import heroBg from '../assets/Hobby in a Box.png'
+import heroBg from '../assets/HobbyinaBox.png'
 import { ref, onMounted } from 'vue'
 
 const route = useRoute()
@@ -37,12 +37,12 @@ onMounted(() => {
     <div class="container h-100">
       <div class="row align-items-center g-4 h-100">
         <div class="col-12 col-lg-7">
-          <h1 class="display-6 fw-bold">Welcome to Hobby in a Box!</h1>
+          <h1 class="display-5 fw-bold">Welcome to Hobby in a Box!</h1>
           <br>
           <p class="lead text-body-secondary"><strong>Curated hobby boxes delivered to your door - explore creativity,
               learning, and culture.</strong>
           </p>
-          <div class="d-flex gap-2 mt-3">
+          <div class="hero-actions d-flex gap-2 mt-3 justify-content-center flex-wrap">
             <RouterLink class="btn btn-success" to="/products">Browse Products</RouterLink>
             <RouterLink class="btn btn-success" to="/pricing">View Pricing</RouterLink>
           </div>
@@ -69,6 +69,7 @@ onMounted(() => {
 .pi-cart-plus,
 .pi-box {
   font-size: 1.25rem;
+  line-height: 1.4;
 }
 
 .steps {
@@ -76,8 +77,13 @@ onMounted(() => {
 }
 
 .home-bg {
+  background-image: url(https://img.freepik.com/free-vector/blurred-light-background-design_1107-160.jpg?t=st=1770904010~exp=1770907610~hmac=0a26e817aab791674c21f016c9f7242727292ad2fe329935bb71ced6b81d2517);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   min-height: 100vh;
   padding: 2rem;
+  min-height: 80vh;
   display: flex;
   align-items: flex-start;
 }
@@ -88,37 +94,8 @@ onMounted(() => {
   object-fit: contain;
 }
 
-.gradient-bg {
-  background-image: url(https://img.freepik.com/free-vector/blurred-light-background-design_1107-160.jpg);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+.hero-actions .btn {
+  min-width: 160px;
+  text-align: center;
 }
-
-.welcome-banner {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #5c4033;
-  color: white;
-  padding: 12px 28px;
-  border-radius: 8px;
-  font-weight: bold;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-  z-index: 9999;
-  animation: slideDown 0.4s ease;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -20px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
 </style>
