@@ -3,7 +3,7 @@ import {
     createPayfast,
     handleITN,
     confirmPayment
-} from "../controllers/paymentCon.js";
+} from "../controllers/paymentController.js";
 
 const router = express.Router();
 

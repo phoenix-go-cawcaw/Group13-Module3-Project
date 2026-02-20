@@ -1,132 +1,145 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import heroBg from '../assets/HobbyinaBox.png'
 
 const route = useRoute()
 const router = useRouter()
 
-// ── Welcome banner ───────────────────────────────────────────────────────────
 const showWelcome = ref(false)
 const welcomeMessage = ref('')
 
 onMounted(() => {
-  if (route.query.welcome === 'back') {
-    welcomeMessage.value = '✨ Welcome Back!'
-    showWelcome.value = true
-  } else if (route.query.welcome === 'new') {
-    welcomeMessage.value = '✨ Welcome to Hobby in a Box!'
-    showWelcome.value = true
-  }
-
+  const q = route.query.welcome
+  if (q === 'back') { welcomeMessage.value = '✦ Welcome Back!'; showWelcome.value = true }
+  if (q === 'new') { welcomeMessage.value = '✦ Welcome to Hobby in a Box!'; showWelcome.value = true }
   if (showWelcome.value) {
-    setTimeout(() => {
-      showWelcome.value = false
-      router.replace({ path: '/' })
-    }, 4000)
+    setTimeout(() => { showWelcome.value = false; router.replace({ path: '/' }) }, 4000)
   }
 })
 
-// ── 3-D box interaction ───────────────────────────────────────────────────────
 const isHovered = ref(false)
 const isOpen = ref(false)
-const rotateX = ref(0)
-const rotateY = ref(0)
 
-// Smooth spring values (manual simple spring via animation frame)
-const springX = ref(0)
-const springY = ref(0)
-let raf = null
+const targetX = ref(0), targetY = ref(0)
+const springX = ref(0), springY = ref(0)
 
-function springTick() {
-  const stiffness = 0.12
-  springX.value += (rotateX.value - springX.value) * stiffness
-  springY.value += (rotateY.value - springY.value) * stiffness
-  raf = requestAnimationFrame(springTick)
+let rafId = null
+function tick() {
+  const k = 0.08
+  springX.value += (targetX.value - springX.value) * k
+  springY.value += (targetY.value - springY.value) * k
+  rafId = requestAnimationFrame(tick)
 }
-springTick()
+tick()
+onBeforeUnmount(() => cancelAnimationFrame(rafId))
 
+//MOUSE MOVEMENT
 function onMouseMove(e) {
-  const rect = e.currentTarget.getBoundingClientRect()
-  const mx = (e.clientX - rect.left) / rect.width - 0.5
-  const my = (e.clientY - rect.top) / rect.height - 0.5
-  rotateY.value = mx * 30
-  rotateX.value = -my * 30
+  const r = e.currentTarget.getBoundingClientRect()
+  const mx = (e.clientX - r.left) / r.width - 0.5
+  const my = (e.clientY - r.top) / r.height - 0.5
+  targetY.value = mx * 50
+  targetX.value = -my * 50
 }
-
-function onMouseEnter() {
-  isHovered.value = true
-  isOpen.value = true
-}
-
+function onMouseEnter() { isHovered.value = true; isOpen.value = true }
 function onMouseLeave() {
-  isHovered.value = false
-  isOpen.value = false
-  rotateX.value = 0
-  rotateY.value = 0
+  isHovered.value = false; isOpen.value = false
+  targetX.value = 0; targetY.value = 0
 }
 
-// Lid angle: closed = 90, open = 220 (spring toward target)
-const lidAngle = ref(90)
-const lidTarget = ref(90)
-let lidRaf = null
+const backFlap = ref(0), targetBack = ref(0)
+const frontFlap = ref(0), targetFront = ref(0)
+const leftFlap = ref(0), targetLeft = ref(0)
+const rightFlap = ref(0), targetRight = ref(0)
 
-function lidTick() {
-  lidAngle.value += (lidTarget.value - lidAngle.value) * 0.1
-  lidRaf = requestAnimationFrame(lidTick)
+let flapRaf = null
+function flapTick() {
+  const k = 0.10
+  backFlap.value += (targetBack.value - backFlap.value) * k
+  frontFlap.value += (targetFront.value - frontFlap.value) * k
+  leftFlap.value += (targetLeft.value - leftFlap.value) * k
+  rightFlap.value += (targetRight.value - rightFlap.value) * k
+  flapRaf = requestAnimationFrame(flapTick)
 }
-lidTick()
+flapTick()
+onBeforeUnmount(() => cancelAnimationFrame(flapRaf))
 
-// Watch isOpen to update lid target
-import { watch } from 'vue'
-watch(isOpen, val => { lidTarget.value = val ? 220 : 90 })
+watch(isOpen, open => {
+  targetBack.value = open ? 120 : 0
+  targetFront.value = open ? -130 : 0
+  targetLeft.value = open ? -130 : 0
+  targetRight.value = open ? 130 : 0
+})
 
-const HALF = 128 // px — half of 256px box
+const BOX = 240
+const HALF = BOX / 2
+
+const tiles = [
+  { key: 'glass', bg: '#E8A87C', border: '#C06A22', tx: '-80px', ty: '-260px', rot: '-15deg', delay: 0.05, size: 32 },
+  { key: 'utensils', bg: '#81C784', border: '#388E3C', tx: '20px', ty: '-220px', rot: '10deg', delay: 0.10, size: 28 },
+  { key: 'footstep', bg: '#D4856A', border: '#A95A1C', tx: '100px', ty: '-240px', rot: '25deg', delay: 0.15, size: 32 },
+  { key: 'flask', bg: '#A67C52', border: '#7B5E3C', tx: '-120px', ty: '-120px', rot: '-30deg', delay: 0.12, size: 28 },
+  { key: 'sun', bg: '#E2C49A', border: '#C06A22', tx: '130px', ty: '-100px', rot: '15deg', delay: 0.18, size: 32 },
+  { key: 'brush', bg: '#B08060', border: '#8B5E3C', tx: '80px', ty: '-50px', rot: '45deg', delay: 0.20, size: 28 },
+  { key: 'waves', bg: '#D1A877', border: '#A07040', tx: '-80px', ty: '-50px', rot: '-20deg', delay: 0.22, size: 28 },
+]
+
+const particles = [
+  { x: -120, y: -220 }, { x: 60, y: -260 }, { x: 140, y: -190 },
+  { x: -60, y: -170 }, { x: 100, y: -130 }, { x: -140, y: -130 },
+  { x: 20, y: -290 }, { x: -20, y: -100 },
+]
 </script>
 
 <template>
   <main class="home-root">
 
-    <!-- ── Gradient background ── -->
-    <div class="home-bg-gradient" />
+    <div class="bg-wash" />
+    <div class="bg-grain" />
 
-    <!-- ── Decorative floating icons ── -->
-    <div class="deco-icons" aria-hidden="true">
-      <span class="deco palette float-a">
-        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
-          <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
-          <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 011.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+    <div class="deco-layer" aria-hidden="true">
+      <span class="deco deco-palette float-a">
+        <svg width="130" height="130" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1">
+          <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
+          <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
+          <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
+          <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
+          <path
+            d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 011.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
         </svg>
       </span>
-      <span class="deco sprout float-b">
-        <svg width="140" height="140" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-9"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 00-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/>
-        </svg>
-      </span>
-      <span class="deco chef float-c">
-        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 13.87A4 4 0 017.41 6a5.11 5.11 0 019.18 0A4 4 0 0118 13.87V21H6z"/><line x1="6" y1="17" x2="18" y2="17"/>
+      <span class="deco deco-sprout float-b">
+        <svg width="150" height="150" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1">
+          <path d="M7 20h10" />
+          <path d="M10 20c5.5-2.5.8-6.4 3-9" />
+          <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z" />
+          <path d="M14.1 6a7 7 0 00-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z" />
         </svg>
       </span>
     </div>
 
-    <!-- ── Welcome banner ── -->
     <Transition name="banner">
-      <div v-if="showWelcome" class="welcome-banner" role="status">
+      <div v-if="showWelcome" class="welcome-banner" role="status" aria-live="polite">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          class="spark-icon">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+        </svg>
         {{ welcomeMessage }}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          class="spark-icon">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+        </svg>
       </div>
     </Transition>
 
-    <!-- ── Main grid ── -->
     <div class="home-grid">
 
-      <!-- Left: text content -->
       <div class="home-text slide-in-left">
+
         <div>
           <h1 class="hero-title">
             Welcome to<br />
-            <span class="hero-gradient">Hobby in a Box!</span>
+            <span class="hero-accent">Hobby in a Box!</span>
           </h1>
           <p class="hero-sub">
             Curated hobby boxes delivered to your door — explore creativity,
@@ -134,170 +147,188 @@ const HALF = 128 // px — half of 256px box
           </p>
         </div>
 
-        <!-- CTA Buttons -->
         <div class="hero-btns">
           <RouterLink to="/products" class="btn-primary">
             Browse Products
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
           </RouterLink>
           <RouterLink to="/pricing" class="btn-secondary">
             View Pricing
           </RouterLink>
         </div>
 
-        <!-- How it works card -->
-        <div class="steps-card">
-          <div class="step">
-            <div class="step-num">1</div>
+        <div class="features-card">
+
+          <div class="feature-row">
+            <div class="feat-icon" style="background:#C06A22;transform:rotate(3deg)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F3E6D3" stroke-width="2">
+                <circle cx="13.5" cy="6.5" r=".5" fill="#F3E6D3" />
+                <circle cx="17.5" cy="10.5" r=".5" fill="#F3E6D3" />
+                <circle cx="8.5" cy="7.5" r=".5" fill="#F3E6D3" />
+                <circle cx="6.5" cy="12.5" r=".5" fill="#F3E6D3" />
+                <path
+                  d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 011.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
+              </svg>
+            </div>
             <div>
-              <h3 class="step-title">Choose a Category</h3>
-              <div class="step-categories">
-                <span class="cat-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C06A22" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5" fill="#C06A22"/><circle cx="17.5" cy="10.5" r=".5" fill="#C06A22"/><circle cx="8.5" cy="7.5" r=".5" fill="#C06A22"/><circle cx="6.5" cy="12.5" r=".5" fill="#C06A22"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 011.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
-                  Arts & DIY
-                </span>
-                <span class="cat-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-9"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 00-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></svg>
-                  Green Living
-                </span>
-                <span class="cat-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2196F3" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-                  Education 4 Kidz
-                </span>
-                <span class="cat-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF9800" stroke-width="2"><path d="M6 13.87A4 4 0 017.41 6a5.11 5.11 0 019.18 0A4 4 0 0118 13.87V21H6z"/><line x1="6" y1="17" x2="18" y2="17"/></svg>
-                  Culinary Discovery
-                </span>
-              </div>
+              <h3 class="feat-title">Choose a Category</h3>
+              <p class="feat-desc">Arts & DIY, Green Living, Education 4 Kidz, or Culinary Discovery</p>
             </div>
           </div>
 
-          <div class="step-row">
-            <div class="step step-sm">
-              <div class="step-num">2</div>
-              <div>
-                <h3 class="step-title">Flexible Plans</h3>
-                <p class="step-desc">Subscribe monthly or buy once. No commitments.</p>
-              </div>
+          <div class="feature-row">
+            <div class="feat-icon" style="background:#A95A1C;transform:rotate(-2deg)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F3E6D3" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+              </svg>
             </div>
-            <div class="step step-sm">
-              <div class="step-num">3</div>
-              <div>
-                <h3 class="step-title">Free Delivery</h3>
-                <p class="step-desc">All materials included, delivered to your door.</p>
-              </div>
+            <div>
+              <h3 class="feat-title">Flexible Plans</h3>
+              <p class="feat-desc">Subscribe monthly or make a one-time purchase — no commitments.</p>
             </div>
           </div>
+
+          <div class="feature-row">
+            <div class="feat-icon" style="background:#D1A877;transform:rotate(1deg)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3E2A1B" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                <line x1="12" y1="22.08" x2="12" y2="12" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="feat-title">Free Delivery</h3>
+              <p class="feat-desc">All materials included, delivered right to your doorstep.</p>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <!-- Right: interactive 3D box -->
-      <div
-        class="box-scene"
-        @mousemove="onMouseMove"
-        @mouseenter="onMouseEnter"
-        @mouseleave="onMouseLeave"
-      >
-        <!-- CSS 3D box -->
-        <div
-          class="box-3d"
-          :style="{
-            transform: `rotateX(${springX}deg) rotateY(${springY}deg)`,
-          }"
-        >
-          <!-- Shadow -->
-          <div class="box-shadow" />
+      <div class="box-scene" @mousemove="onMouseMove" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave">
+        <!-- BOX DISPLAY -->
 
-          <!-- Back face -->
+        <div class="box-3d" :style="{ transform: `translateX(40px) translateY(130px) rotateX(${springX - 25}deg) rotateY(${springY}deg)` }">
+
+          <div class="box-ground-shadow" />
+
           <div class="face face-back" />
-          <!-- Right face -->
-          <div class="face face-right"><div class="face-inner-dash" /></div>
-          <!-- Left face -->
-          <div class="face face-left"><div class="face-inner-dash" /></div>
-          <!-- Bottom face -->
+          <div class="face face-right" />
+          <div class="face face-left" />
           <div class="face face-bottom" />
-          <!-- Front face -->
           <div class="face face-front">
-            <div class="front-content">
-              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#3E2A1B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="front-icon">
-                <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
-              </svg>
-              <span class="front-label">Hobby<br/>Box</span>
-              <span class="front-badge">EST. 2024</span>
-            </div>
+            <div class="front-score" />
           </div>
 
-          <!-- Floating items that pop out when open -->
-          <div
-            class="floaters"
-            :style="{ transform: 'translateZ(0px)' }"
-          >
-            <!-- Palette -->
-            <div
-              class="floater floater-palette"
-              :class="{ 'floater-out-center': isOpen }"
-            >
-              <svg width="90" height="90" viewBox="0 0 24 24" fill="#E53935" stroke="#B71C1C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/>
-                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 011.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+          <div class="floaters-root">
+
+            <div v-for="t in tiles" :key="t.key" class="tile" :class="{ 'tile-out': isOpen }" :style="{
+              '--tx': t.tx, '--ty': t.ty, '--rot': t.rot,
+              '--bg': t.bg, '--border': t.border,
+              transitionDelay: isOpen ? t.delay + 's' : '0s',
+            }">
+              <!-- GlassWater -->
+              <svg v-if="t.key === 'glass'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
+                stroke="#F3E6D3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 8l1.5 10.5A2 2 0 008.5 21h7a2 2 0 002-1.5L19 8M3 8h18" />
+                <path d="M10 12h4" />
+              </svg>
+              <!-- Utensils -->
+              <svg v-else-if="t.key === 'utensils'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
+                stroke="#F3E6D3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2" />
+                <path d="M7 2v20" />
+                <path d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7" />
+              </svg>
+              <!-- Footprints -->
+              <svg v-else-if="t.key === 'footstep'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
+                stroke="#F3E6D3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 11-4 0z" />
+                <path
+                  d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 104 0z" />
+              </svg>
+              <!-- FlaskConical -->
+              <svg v-else-if="t.key === 'flask'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
+                stroke="#F3E6D3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 2v7.31l-5.48 8.38A1 1 0 005.4 19h13.2a1 1 0 00.88-1.31L14 9.31V2" />
+                <line x1="8.5" y1="2" x2="15.5" y2="2" />
+              </svg>
+              <!-- Sun -->
+              <svg v-else-if="t.key === 'sun'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
+                stroke="#3E2A1B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5" />
+                <line x1="12" y1="1" x2="12" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" />
+                <line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+              </svg>
+              <!-- Brush -->
+              <svg v-else-if="t.key === 'brush'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
+                stroke="#F3E6D3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 00-2.82 0L8 7l9 9 1.59-1.59a2 2 0 000-2.82L17 10l4.37-4.37a2.12 2.12 0 00-3-3z" />
+                <path d="M9 8c-2 3-4 3.5-7 4l8 8c1-.5 3-1.5 4-7" />
+                <path d="M14.5 17.5 4.5 15" />
+              </svg>
+              <!-- Waves -->
+              <svg v-else-if="t.key === 'waves'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
+                stroke="#F3E6D3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+                <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+                <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
               </svg>
             </div>
 
-            <!-- Sprout -->
-            <div
-              class="floater floater-sprout"
-              :class="{ 'floater-out-left': isOpen }"
-            >
-              <svg width="80" height="80" viewBox="0 0 24 24" fill="#43A047" stroke="#1B5E20" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-9"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 00-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/>
-              </svg>
+            <!-- Central hero plant -->
+            <div class="plant-wrap" :class="{ 'plant-out': isOpen }">
+              <div class="plant-stem" />
+              <div class="plant-leaf plant-leaf-left" />
+              <div class="plant-leaf plant-leaf-right" />
+              <div class="plant-flower" />
             </div>
 
-            <!-- Chef hat -->
-            <div
-              class="floater floater-chef"
-              :class="{ 'floater-out-right': isOpen }"
-            >
-              <svg width="80" height="80" viewBox="0 0 24 24" fill="#FFB74D" stroke="#E65100" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 13.87A4 4 0 017.41 6a5.11 5.11 0 019.18 0A4 4 0 0118 13.87V21H6z"/><line x1="6" y1="17" x2="18" y2="17"/>
-              </svg>
-            </div>
+            <!-- Particles -->
+            <div v-for="(p, i) in particles" :key="i" class="particle" :class="{ 'particle-out': isOpen }" :style="{
+              '--px': p.x + 'px',
+              '--py': p.y + 'px',
+              transitionDelay: isOpen ? (i * 0.07) + 's' : '0s',
+            }" />
 
-            <!-- Magic glow -->
             <div class="magic-glow" :class="{ 'glow-on': isOpen }" />
           </div>
 
-          <!-- Top lid (hinges open) -->
-          <div
-            class="face face-lid"
-            :style="{
-              transform: `translateY(-${HALF}px) rotateX(${lidAngle}deg)`,
-            }"
-          >
-            <div class="lid-inner">
-              <div class="lid-circle">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#A06020" stroke-width="1.5" opacity="0.5">
-                  <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
-                </svg>
-              </div>
-            </div>
+          <div class="flap-plane" :style="{ transform: `translateY(-${HALF}px) rotateX(90deg)` }">
+            <div class="flap flap-back" :style="{ transform: `rotateX(${backFlap}deg)` }" />
+            <div class="flap flap-front" :style="{ transform: `rotateX(${frontFlap}deg)` }" />
+            <div class="flap flap-left" :style="{ transform: `rotateY(${leftFlap}deg)` }" />
+            <div class="flap flap-right" :style="{ transform: `rotateY(${rightFlap}deg)` }" />
           </div>
+
         </div>
 
-        <!-- Hover prompt -->
-        <div class="box-prompt" :class="{ 'prompt-visible': true }">
+        <div class="box-prompt fade-in-late">
           <span class="prompt-spark">✦</span>
-          {{ isHovered ? 'Look inside!' : 'Hover to open the box!' }}
+          {{ isHovered ? "It's full of hobbies!" : "Hover to open the box!" }}
           <span class="prompt-spark">✦</span>
         </div>
+
       </div>
-
     </div>
   </main>
 </template>
 
 <style scoped>
-/* ── Layout ─────────────────────────────────────────────────────── */
 .home-root {
   min-height: 100vh;
   position: relative;
@@ -306,14 +337,127 @@ const HALF = 128 // px — half of 256px box
   align-items: center;
   justify-content: center;
   padding: 2rem 1.5rem;
-  font-family: 'Georgia', serif;
+  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  color: #3E2A1B;
 }
 
-.home-bg-gradient {
+.bg-wash {
   position: absolute;
   inset: 0;
   background: linear-gradient(135deg, #F3E6D3 0%, #E2C49A 45%, #D1A877 100%);
   z-index: 0;
+}
+
+.bg-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.deco-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.deco {
+  position: absolute;
+  color: rgba(192, 106, 34, 0.14);
+}
+
+.deco-palette {
+  top: 4%;
+  left: 2%;
+}
+
+.deco-sprout {
+  bottom: 6%;
+  right: 3%;
+}
+
+@keyframes floatA {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+@keyframes floatB {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(20px) rotate(-5deg);
+  }
+}
+
+.float-a {
+  animation: floatA 5s ease-in-out infinite;
+}
+
+.float-b {
+  animation: floatB 7s ease-in-out infinite 1s;
+}
+
+.welcome-banner {
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  background: #C06A22;
+  color: #F3E6D3;
+  padding: .65rem 2rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: .04em;
+  box-shadow: 0 8px 32px rgba(62, 42, 27, .3);
+  border: 3px solid #F3E6D3;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.spark-icon {
+  animation: sparkSpin 3s ease-in-out infinite;
+}
+
+@keyframes sparkSpin {
+
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+
+  50% {
+    transform: rotate(20deg) scale(1.15);
+  }
+}
+
+.banner-enter-active,
+.banner-leave-active {
+  transition: transform .5s cubic-bezier(.34, 1.56, .64, 1), opacity .4s ease;
+}
+
+.banner-enter-from,
+.banner-leave-to {
+  transform: translateX(-50%) translateY(-60px);
+  opacity: 0;
 }
 
 .home-grid {
@@ -327,239 +471,164 @@ const HALF = 128 // px — half of 256px box
   align-items: center;
 }
 
-@media (min-width: 1024px) {
+@media (min-width:1024px) {
   .home-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
 
-/* ── Decorative floating background icons ────────────────────────── */
-.deco-icons {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-
-.deco {
-  position: absolute;
-  color: rgba(192, 106, 34, 0.18);
-}
-
-.palette { top: 5%; left: 3%; }
-.sprout  { bottom: 8%; right: 3%; }
-.chef    { top: 22%; right: 12%; }
-
-@keyframes floatA {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50%       { transform: translateY(-20px) rotate(5deg); }
-}
-@keyframes floatB {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50%       { transform: translateY(20px) rotate(-5deg); }
-}
-@keyframes floatC {
-  0%, 100% { transform: translate(0,0); }
-  50%       { transform: translate(10px, -15px); }
-}
-
-.float-a { animation: floatA 5s ease-in-out infinite; }
-.float-b { animation: floatB 7s ease-in-out infinite 1s; }
-.float-c { animation: floatC 6s ease-in-out infinite 0.5s; }
-
-/* ── Welcome banner ──────────────────────────────────────────────── */
-.welcome-banner {
-  position: fixed;
-  top: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
-  background: #C06A22;
-  color: #fff;
-  padding: 0.7rem 2rem;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: 0.03em;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-  border: 2px solid #F3E6D3;
-  white-space: nowrap;
-}
-
-.banner-enter-active, .banner-leave-active {
-  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease;
-}
-.banner-enter-from, .banner-leave-to {
-  transform: translateX(-50%) translateY(-60px);
-  opacity: 0;
-}
-
-/* ── Slide-in animation for left column ─────────────────────────── */
 @keyframes slideInLeft {
-  from { transform: translateX(-40px); opacity: 0; }
-  to   { transform: translateX(0);     opacity: 1; }
+  from {
+    transform: translateX(-40px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .slide-in-left {
-  animation: slideInLeft 0.8s ease-out both;
+  animation: slideInLeft .85s ease-out both;
 }
 
-/* ── Text content ────────────────────────────────────────────────── */
 .home-text {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  color: #3E2A1B;
 }
 
 .hero-title {
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -.02em;
   margin: 0 0 1rem;
+  color: #3E2A1B;
 }
 
-.hero-gradient {
-  background: linear-gradient(to right, #C06A22, #8B4513);
+.hero-accent {
+  background: linear-gradient(to right, #C06A22, #A95A1C);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 .hero-sub {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   color: #5A3A22;
-  line-height: 1.7;
+  line-height: 1.75;
   margin: 0;
 }
 
-/* ── CTA buttons ─────────────────────────────────────────────────── */
 .hero-btns {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
 }
 
-.btn-primary, .btn-secondary {
+.btn-primary,
+.btn-secondary {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 0.9rem 1.8rem;
+  padding: .9rem 1.8rem;
   font-size: 1rem;
   font-weight: 700;
-  border-radius: 12px;
+  border-radius: 14px;
   text-decoration: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
   cursor: pointer;
   font-family: inherit;
+  transition: transform .15s ease, box-shadow .15s ease;
 }
 
 .btn-primary {
   background: #C06A22;
-  color: #fff;
-  box-shadow: 0 4px 0 #8B4513;
+  color: #F3E6D3;
+  border: 2px solid #A95A1C;
+  box-shadow: 0 6px 0 #A95A1C;
 }
+
 .btn-primary:hover {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #8B4513;
-  color: #fff;
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 #A95A1C;
+  color: #F3E6D3;
+}
+
+.btn-primary:active {
+  transform: translateY(5px);
+  box-shadow: 0 1px 0 #A95A1C;
 }
 
 .btn-secondary {
   background: #F3E6D3;
-  color: #8B4513;
-  border: 2px solid #8B4513;
-  box-shadow: 0 4px 0 #8B4513;
-}
-.btn-secondary:hover {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #8B4513;
-  color: #8B4513;
+  color: #A95A1C;
+  border: 2px solid #A95A1C;
+  box-shadow: 0 6px 0 #A95A1C;
 }
 
-/* ── Steps card ──────────────────────────────────────────────────── */
-.steps-card {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(12px);
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.6);
+.btn-secondary:hover {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 #A95A1C;
+  color: #A95A1C;
+}
+
+.btn-secondary:active {
+  transform: translateY(5px);
+  box-shadow: 0 1px 0 #A95A1C;
+}
+
+.features-card {
+  background: rgba(243, 230, 211, .70);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 20px;
+  border: 1.5px solid rgba(255, 255, 255, .55);
   padding: 1.75rem;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+  box-shadow: 0 12px 32px rgba(62, 42, 27, .09);
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.4rem;
 }
 
-.step {
+.feature-row {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
 }
 
-.step-num {
+.feat-icon {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  background: #C06A22;
-  color: #fff;
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
-  font-weight: 700;
-  box-shadow: inset 0 -2px 4px rgba(0,0,0,0.15);
+  box-shadow: 0 3px 8px rgba(62, 42, 27, .18);
 }
 
-.step-title {
+.feat-title {
   font-size: 1rem;
   font-weight: 700;
   color: #3E2A1B;
-  margin: 0 0 0.4rem;
+  margin: 0 0 3px;
 }
 
-.step-desc {
-  font-size: 0.875rem;
+.feat-desc {
+  font-size: .85rem;
   color: #5A3A22;
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
-.step-categories {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
-}
-
-.cat-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #5A3A22;
-}
-
-.step-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.step-sm {
-  align-items: flex-start;
-}
-
-/* ── 3D Box scene ────────────────────────────────────────────────── */
 .box-scene {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 600px;
+  height: 580px;
   perspective: 1200px;
   user-select: none;
   cursor: pointer;
@@ -567,140 +636,124 @@ const HALF = 128 // px — half of 256px box
 
 .box-3d {
   position: relative;
-  width: 256px;
-  height: 256px;
+  width: 240px;
+  height: 240px;
   transform-style: preserve-3d;
-  transition: transform 0.05s ease; /* very short — springX/Y do the smoothing */
 }
 
-.box-shadow {
+.box-ground-shadow {
   position: absolute;
-  bottom: -128px;
+  bottom: -120px;
   left: 50%;
   transform: translateX(-50%);
-  width: 256px;
-  height: 80px;
-  background: rgba(0,0,0,0.18);
-  filter: blur(24px);
+  width: 240px;
+  height: 70px;
+  background: rgba(169, 90, 28, .18);
+  filter: blur(28px);
   border-radius: 50%;
   pointer-events: none;
 }
 
-/* ── Box faces ───────────────────────────────────────────────────── */
 .face {
   position: absolute;
   inset: 0;
   border-radius: 10px;
-  border: 2px solid #703808;
-  backface-visibility: hidden;
+  backface-visibility: visible; 
+  /* if laggy, switch to hidden (may cause render issues) */
 }
 
 .face-back {
-  background: #A05515;
-  transform: rotateY(180deg) translateZ(128px);
+  background: #A95A1C;
+  border: 2px solid #C06A22;
+  transform: rotateY(180deg) translateZ(120px);
 }
+
 .face-right {
-  background: #B05E18;
-  transform: rotateY(90deg) translateZ(128px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.face-left {
-  background: #B05E18;
-  transform: rotateY(-90deg) translateZ(128px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.face-inner-dash {
-  width: 80%;
-  height: 80%;
-  border: 2px dashed rgba(112, 56, 8, 0.3);
-  border-radius: 6px;
-}
-.face-bottom {
-  background: #8B4513;
-  transform: rotateX(-90deg) translateZ(128px);
-  border-color: transparent;
-}
-.face-front {
   background: #C06A22;
-  transform: translateZ(128px);
+  border: 2px solid #E2C49A;
+  transform: rotateY(90deg) translateZ(120px);
+}
+
+.face-left {
+  background: #C06A22;
+  border: 2px solid #E2C49A;
+  transform: rotateY(-90deg) translateZ(120px);
+}
+
+.face-bottom {
+  background: #A95A1C;
+  border: none;
+  transform: rotateX(-90deg) translateZ(120px);
+}
+
+.face-front {
+  background: linear-gradient(145deg, #D1A877 0%, #C06A22 100%);
+  border: 2px solid #E2C49A;
+  transform: translateZ(120px);
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+  overflow: hidden;
 }
 
-.front-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 1rem;
-  width: 100%;
-  height: 100%;
-}
-
-.front-icon {
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-}
-
-.front-label {
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: #3E2A1B;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  line-height: 1.2;
-  text-shadow: 0 1px 0 rgba(255,255,255,0.3);
-}
-
-.front-badge {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: #3E2A1B;
-  background: rgba(62,42,27,0.1);
-  border: 1px solid rgba(62,42,27,0.2);
-  padding: 2px 10px;
-  border-radius: 999px;
-  letter-spacing: 0.12em;
-}
-
-/* ── Lid ─────────────────────────────────────────────────────────── */
-.face-lid {
-  background: #D48C44;
-  border-color: #A06020;
-  transform-origin: top center;
-  transform-style: preserve-3d;
-  transition: transform 0.15s ease;
-}
-
-.lid-inner {
+.front-score {
   position: absolute;
-  inset: 6px;
-  border: 2px dashed rgba(160, 96, 32, 0.35);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(243, 230, 211, .18);
 }
 
-.lid-circle {
-  width: 56px;
-  height: 56px;
-  background: rgba(160,96,32,0.15);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.flap-plane {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  width: 240px;
+  height: 240px;
+  pointer-events: none;
 }
 
-/* ── Floating items inside the box ──────────────────────────────── */
-.floaters {
+.flap {
+  position: absolute;
+  background: #D1A877;
+  border: 1px solid #E2C49A;
+  backface-visibility: visible;
+}
+
+.flap-back {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  transform-origin: top;
+}
+
+.flap-front {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  transform-origin: bottom;
+}
+
+.flap-left {
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  transform-origin: left;
+}
+
+.flap-right {
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  transform-origin: right;
+}
+
+.floaters-root {
   position: absolute;
   inset: 0;
   display: flex;
@@ -708,72 +761,169 @@ const HALF = 128 // px — half of 256px box
   justify-content: center;
   pointer-events: none;
   transform-style: preserve-3d;
+  overflow: visible;
 }
 
-.floater {
+.tile {
   position: absolute;
+  width: 56px;
+  height: 56px;
+  background: var(--bg);
+  border-radius: 14px;
+  border-bottom: 4px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(62, 42, 27, .25);
   opacity: 0;
-  transform: scale(0.4) translateY(0);
-  transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25));
+  transform: scale(.4) translate(0, 0) rotate(0deg);
+  transition: transform .55s cubic-bezier(.34, 1.56, .64, 1), opacity .35s ease;
 }
 
-/* Each floater pops out to a different position */
-.floater-out-center { opacity: 1; transform: scale(1.2) translateY(-180px) rotate(15deg); }
-.floater-out-left   { opacity: 1; transform: scale(1)   translate(-90px, -140px) rotate(-25deg); transition-delay: 0.1s; }
-.floater-out-right  { opacity: 1; transform: scale(1)   translate(90px, -140px)  rotate(25deg);  transition-delay: 0.2s; }
+.tile-out {
+  opacity: 1;
+  transform:
+    scale(1)
+    translate(var(--tx), calc(var(--ty) - 80px))
+    rotate(var(--rot));
+}
 
-/* Glow */
+.plant-wrap {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  transform: scale(0) translateY(50px);
+  transition: transform .65s cubic-bezier(.34, 1.56, .64, 1) .1s, opacity .4s ease .1s;
+}
+
+.plant-out {
+  opacity: 1;
+  transform: scale(1.35) translateY(-200px);
+}
+
+.plant-stem {
+  width: 8px;
+  height: 110px;
+  background: linear-gradient(to top, #163915, #34a91c);
+  border-radius: 999px;
+}
+
+.plant-leaf {
+  position: absolute;
+  bottom: 36px;
+  width: 32px;
+  height: 14px;
+  background: #51c637;
+  border-radius: 999px;
+}
+
+.plant-leaf-left {
+  left: -24px;
+  transform: rotate(-45deg);
+}
+
+.plant-leaf-right {
+  right: -24px;
+  transform: rotate(45deg);
+}
+
+.plant-flower {
+  position: absolute;
+  top: -18px;
+  width: 28px;
+  height: 44px;
+  background: linear-gradient(to bottom, #ffed2b, #d1d119);
+  border-radius: 999px;
+  border: 3px solid #cec813;
+}
+
+.particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f2cb4c;
+  opacity: 0;
+  transform: scale(0) translate(0, 0);
+  transition: transform .9s ease, opacity .9s ease;
+}
+
+.particle-out {
+  opacity: .65;
+  transform: scale(1) translate(var(--px), var(--py));
+}
+
 .magic-glow {
   position: absolute;
-  width: 256px;
-  height: 256px;
-  background: radial-gradient(circle, #facc15 0%, transparent 70%);
+  width: 240px;
+  height: 240px;
+  background: radial-gradient(circle, rgba(209, 168, 119, .9) 0%, transparent 70%);
   border-radius: 50%;
   opacity: 0;
-  transform: scale(0.5);
-  mix-blend-mode: screen;
+  transform: scale(.5);
   pointer-events: none;
-  transition: opacity 0.5s ease, transform 0.5s ease;
-  filter: blur(30px);
+  filter: blur(32px);
+  mix-blend-mode: screen;
+  transition: opacity .5s ease, transform .5s ease;
 }
 
 .glow-on {
-  opacity: 0.55;
-  transform: scale(1.5);
+  opacity: .55;
+  transform: scale(1.6);
 }
 
-/* ── Hover prompt ────────────────────────────────────────────────── */
 .box-prompt {
   margin-top: 8rem;
   color: #5A3A22;
   font-weight: 700;
   font-size: 1rem;
-  padding: 0.5rem 1.5rem;
-  background: rgba(255,255,255,0.45);
+  padding: .5rem 1.5rem;
+  background: rgba(243, 230, 211, .55);
   backdrop-filter: blur(8px);
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.55);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1.5px solid rgba(255, 255, 255, .55);
+  box-shadow: 0 2px 12px rgba(62, 42, 27, .08);
   display: flex;
   align-items: center;
-  gap: 8px;
-  animation: promptFadeIn 1s ease 2s both;
+  gap: 16px;
   pointer-events: none;
 }
 
 .prompt-spark {
   color: #C06A22;
-  animation: pulse 1.5s ease-in-out infinite;
+  animation: sparkPulse 1.4s ease-in-out infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.3; }
+@keyframes sparkPulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: .3;
+    transform: scale(.8);
+  }
 }
 
-@keyframes promptFadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+.fade-in-late {
+  animation: fadeInUp 1s ease 2s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

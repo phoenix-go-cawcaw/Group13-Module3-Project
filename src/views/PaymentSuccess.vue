@@ -21,7 +21,7 @@ onMounted(async () => {
     const data = await response.json()
 
     if (response.ok) {
-      message.value = "Payment Successful 🎉"
+      message.value = "Payment Successful"
     } else {
       message.value = data.error || "Payment verification failed"
     }

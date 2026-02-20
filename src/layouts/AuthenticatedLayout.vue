@@ -57,12 +57,18 @@ function handleLogout() {
 </template>
 
 <style scoped>
+.navbar{
+  margin-bottom: 0;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
 .navbar.bg-body-tertiary {
-  background-color: rgba(54, 79, 122, 0.848) !important;
+  background-color: #3E2A1B !important;
 }
 
 .brand-title {
-  color: #ffffff;
+  color: #F3E6D3;
   font-weight: 800;
   text-decoration: none;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande',
@@ -70,12 +76,29 @@ function handleLogout() {
 }
 
 .nav-link {
-  color: #fff;
+  color: #E2C49A;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  color: #F3E6D3;
 }
 
 .nav-link.router-link-active {
   text-decoration: underline;
   text-underline-offset: 4px;
+  color: #F3E6D3;
+}
+
+.btn-outline-light {
+  border-color: #E2C49A;
+  color: #E2C49A;
+}
+
+.btn-outline-light:hover {
+  background-color: #A95A1C;
+  border-color: #A95A1C;
+  color: #fff;
 }
 
 

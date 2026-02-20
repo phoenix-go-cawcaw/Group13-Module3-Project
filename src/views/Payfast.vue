@@ -24,6 +24,7 @@ const handlePayment = async (status) => {
     console.error(error)
   }
 }
+
 </script>
 
 <template>
