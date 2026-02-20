@@ -1,148 +1,365 @@
 <script setup>
-const products = [
-{
-  name: "The Watercolorist Box", 
-  description: "A curated watercolor kit including paints, brushes, and premium paper for creative exploration.", 
-  price: 549.00, 
-  category: "Arts & DIY", 
-  image: new URL ('../assets/paint.png', import.meta.url)
-},
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import paintImg from '../assets/paint.png'
+import leatherImg from '../assets/leatherworks.png'
+import crochetImg from '../assets/crochet.png'
+import plantsImg from '../assets/plants.png'
+import scienceImg from '../assets/science.png'
+import spicesImg from '../assets/spices.png'
 
-{
-    name: "Leatherworking Craft Box", 
-  description: "A beginner-friendly leatherworking kit including pre-cut leather pieces, stitching tools, thread, and step-by-step instructions to create a handcrafted accessory.", 
-  price: 629.00, 
-  category: "Arts & DIY",
-  image : new URL('../assets/leatherworks.png', import.meta.url)
-},
-
-{
-  name: "Crochet Starter Box", 
-  description: "A creative crochet kit featuring premium yarn, crochet hooks, and a guided pattern to help beginners create their own handmade project.", 
-  price: 499.00, 
-  category: "Arts & DIY",
-  image : new URL('../assets/crochet.png', import.meta.url)
-},
-  
-{
-  name: "Green Living Starter Box", 
-  description: "A sustainable gardening kit with seasonal seeds, organic soil pods, fertilizer, and a ceramic pot.",
-  price: 499.00,
-  category: "Green Living",
-  image : new URL('../assets/plants.png', import.meta.url)
-},
-{
-  name: "STEM Explorer Box", 
-  description: "A child-friendly STEM kit containing materialsfor a guided monthly science experiment.",
-  price: 459.00,
-  category: "Education",
-  image : new URL('../assets/science.png', import.meta.url)
-},
-{
-  name: "Culinary Discovery Box", 
-  description: "A global culinary experience featuring unique spices and authentic recipes from a feautured country.",
-  price: 529.00,
-  category: "Culinary",
-  image : new URL('../assets/spices.png', import.meta.url)
-},
-
+const categories = [
+  "All",
+  "Arts & DIY",
+  "Lifestyle",
+  "STEM",
+  "Food & Culture"
 ]
+
+const selectedCategory = ref("All")
+const showModal = ref(false)
+const selectedProduct = ref(null)
+const currentImageIndex = ref(0)
+
+const products = [
+  {
+    name: "The Watercolorist Box",
+    price: 549.00,
+    category: "Arts & DIY",
+    images: [paintImg]
+  },
+  {
+    name: "The Leathercraft Box",
+    price: 699.00,
+    category: "Arts & DIY",
+    images: [leatherImg]
+  },
+  {
+    name: "The Crochet Box",
+    price: 499.00,
+    category: "Arts & DIY",
+    images: [crochetImg]
+  },
+  {
+    name: "The Plant Lover Box",
+    price: 599.00,
+    category: "Lifestyle",
+    images: [plantsImg]
+  },
+  {
+    name: "The Science Box",
+    price: 649.00,
+    category: "STEM",
+    images: [scienceImg]
+  },
+  {
+    name: "The Spice Box",
+    price: 579.00,
+    category: "Food & Culture",
+    images: [spicesImg]
+  }
+]
+
+const filteredProducts = computed(() => {
+  if (selectedCategory.value === "All") return products
+  return products.filter(p => p.category === selectedCategory.value)
+})
+
+function openQuickView(product) {
+  selectedProduct.value = product
+  currentImageIndex.value = 0
+  showModal.value = true
+}
+
+function nextImage() {
+  if (!selectedProduct.value) return
+  currentImageIndex.value =
+    (currentImageIndex.value + 1) % selectedProduct.value.images.length
+}
+
+function prevImage() {
+  if (!selectedProduct.value) return
+  currentImageIndex.value =
+    (currentImageIndex.value - 1 + selectedProduct.value.images.length) %
+    selectedProduct.value.images.length
+}
+
+function initObserver() {
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible')
+      }
+    })
+  }, { threshold: 0.2 })
+
+  document.querySelectorAll('.animate-on-scroll').forEach(el => {
+    observer.observe(el)
+  })
+}
+
+onMounted(() => {
+  initObserver()
+})
+
+watch(filteredProducts, async () => {
+  await nextTick()
+  initObserver()
+})
 </script>
 
 
-
 <template>
-  <main class="products-bg py-4">
+  <main class="products-bg">
 
+    <div class="container pb-5">
 
-  <div class="container py-4">
-    <div class="row g-4">
-      <div class="col-12 col-md-4" v-for="(product, i) in products" :key="i">
-        <div class="card h-100">
-          <img :src="product.image" class="card-img-top" :alt="product.name" />
-          <div class="card-body">
-            <h4 class="card-title">{{ product.name }}</h4>
-            <p class="card-text">{{ product.description }}</p>
-            <h5 class="card-price">R{{ product.price }}</h5>
-            <br>
-            <div class="button-row">
-              <RouterLink class="btn btn-success" to="/cart">Add to cart</RouterLink>
-              <RouterLink class="btn btn-success" to="/pricing">Subscribe</RouterLink>
+      <div class="text-center mb-4">
+        <h1 class="luxury-title">Our Curated Collection</h1>
+        <p class="luxury-subtitle">
+          Discover thoughtfully crafted experiences designed to inspire.
+        </p>
+      </div>
+
+      <div class="filter-buttons">
+        <button v-for="cat in categories" :key="cat" @click="selectedCategory = cat"
+          :class="['filter-btn', selectedCategory === cat ? 'active' : '']">
+          {{ cat }}
+        </button>
+      </div>
+
+      <!-- <p>Products showing: {{ filteredProducts.length }}</p> -->
+
+      <div class="row g-4 mt-3">
+        <div class="col-12 col-md-6 col-lg-4 animate-on-scroll" v-for="(product, i) in filteredProducts" :key="i">
+          <div class="luxury-card">
+
+            <img :src="product.images[0]" />
+
+            <div class="card-content">
+              <h4>{{ product.name }}</h4>
+              <p>{{ product.description }}</p>
+
+              <div class="price">R{{ product.price }}</div>
+
+              <button class="quick-btn" @click="openQuickView(product)">
+                Quick View
+              </button>
             </div>
+
           </div>
         </div>
       </div>
     </div>
-  </div>
 
 
-    
+
+    <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
+      <div class="luxury-modal">
+
+        <div class="modal-image-section">
+          <button class="carousel-btn left" @click="prevImage">‹</button>
+          <img :src="selectedProduct.images[currentImageIndex]" />
+          <button class="carousel-btn right" @click="nextImage">›</button>
+        </div>
+
+        <div class="modal-details">
+          <h2>{{ selectedProduct.name }}</h2>
+          <p>{{ selectedProduct.description }}</p>
+          <div class="modal-price">R{{ selectedProduct.price }}</div>
+
+          <button class="add-cart-btn">
+            Add to Cart
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+
+
   </main>
 </template>
 
-
 <style>
-.products-bg{
-  background-image: url(https://img.freepik.com/free-vector/blurred-light-background-design_1107-160.jpg?t=st=1770904010~exp=1770907610~hmac=0a26e817aab791674c21f016c9f7242727292ad2fe329935bb71ced6b81d2517);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  min-height: 100vh;
-  padding: 2rem;
+.products-bg {
+  padding-top: 0;
+  padding-bottom: 60px;
+}
+
+.products-hero {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+.products-hero h1 {
+  margin-top: 0;
+}
+
+.luxury-title {
+  font-size: 2.5rem;
+  color: #3E2A1B;
+  font-weight: 700;
+}
+
+.luxury-subtitle {
+  color: #5A3A22;
+}
+
+.filter-buttons {
   display: flex;
+  justify-content: center;
+  gap: 12px;
   flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 8px 20px;
+  border-radius: 30px;
+  border: 2px solid #A95A1C;
+  background: transparent;
+  color: #A95A1C;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+  background: #A95A1C;
+  color: white;
+}
+
+.luxury-card {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: 0.4s ease;
+}
+
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: 0.6s ease;
+}
+
+.animate-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.luxury-card img {
+  width: 100%;
+  height: 240px;
+  object-fit: contain;
+  background: #F3E6D3;
+  padding: 1rem;
+}
+
+.luxury-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.card-content {
+  padding: 1.5rem;
+}
+
+.price {
+  font-size: 1.2rem;
+  color: #C06A22;
+  font-weight: 700;
+  margin: 0.5rem 0;
+}
+
+.quick-btn {
+  background: #C06A22;
+  border: none;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 25px;
+  transition: 0.3s;
+}
+
+.quick-btn:hover {
+  background: #A95A1C;
+}
+
+.animate-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: 0.6s ease;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.luxury-modal {
+  background: white;
+  width: 900px;
+  max-width: 95%;
+  border-radius: 20px;
+  display: flex;
+  overflow: hidden;
+}
+
+.modal-image-section {
+  position: relative;
+  width: 50%;
+  background: #F3E6D3;
+  display: flex;
+  align-items: center;
   justify-content: center;
 }
 
-.button-row {
-  display: flex;
-  gap: 12px; 
-  flex-wrap: wrap;     
+.modal-image-section img {
+  width: 80%;
 }
 
-.card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background-color: rgba(54, 79, 122, 0.677);
+.carousel-btn {
+  position: absolute;
+  background: #A95A1C;
+  color: white;
+  border: none;
+  font-size: 1.5rem;
+  padding: 5px 12px;
+  cursor: pointer;
 }
 
-.card-img-top {
-  height: auto;
-  width: 100%;
-  object-fit: contain;
+.carousel-btn.left {
+  left: 10px;
 }
 
-.card-body {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-
+.carousel-btn.right {
+  right: 10px;
 }
 
-.card-text {
-  flex-grow: 1;     
+.modal-details {
+  padding: 2rem;
+  width: 50%;
 }
 
-.button-row {
-  margin-top: auto;
-  display: flex;
-  gap: 10px;
-  justify-content: center;   
-  width: 100%;
+.modal-price {
+  font-size: 1.5rem;
+  color: #C06A22;
+  margin: 1rem 0;
 }
 
-
-
-.card {
-  background-color: rgba(54, 79, 122, 0.218);
-  border-radius: 12px;
+.add-cart-btn {
+  background: #C06A22;
+  border: none;
+  color: white;
+  padding: 12px 25px;
+  border-radius: 30px;
+  font-weight: 600;
 }
 
-.card-body { 
-  background-color: rgba(54, 79, 122, 0.6) !important; 
+.add-cart-btn:hover {
+  background: #A95A1C;
 }
-
-
 </style>
-
