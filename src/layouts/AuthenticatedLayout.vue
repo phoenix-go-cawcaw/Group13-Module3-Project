@@ -38,7 +38,7 @@ function handleLogout() {
             <RouterLink class="nav-link" to="/products">Products</RouterLink>
           </li>
           <li class="nav-item">
-            <RouterLink class="nav-link" to="/pricing">Pricing</RouterLink>
+            <RouterLink class="nav-link" to="/pricing">Subscriptions</RouterLink>
           </li>
           <li class="nav-item ms-lg-2">
             <button

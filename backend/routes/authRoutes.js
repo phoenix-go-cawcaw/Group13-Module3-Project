@@ -77,7 +77,7 @@ router.post("/login", async (req, res) => {
       match = password === user.password
       if (match) {
         const upgradedHash = await bcrypt.hash(password, 10)
-        await pool.query("UPDATE users SET password = ? WHERE id = ?", [upgradedHash, user.id])
+        await pool.query("UPDATE users SET password = ? WHERE user_id = ?", [upgradedHash, user.user_id])
       }
     }
 
@@ -86,7 +86,7 @@ router.post("/login", async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { user_id: user.user_id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
     )

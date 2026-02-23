@@ -10,26 +10,21 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
 
     const [existing] = await db.query(
-      "SELECT id FROM users WHERE email = ? OR username = ?",
-      [email, username]
-    );
+      "SELECT user_id FROM users WHERE email = ? OR username = ?", [email, username]);
 
     if (existing.length)
       return res.status(400).json({ message: "User already exists" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const [result] = await db.query(
-      "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
-      [username, email, hashedPassword]
-    );
+    const [result] = await db.query("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", [username, email, hashedPassword]);
 
     const token = generateToken(result.insertId);
 
     res.status(201).json({
       token,
       user: {
-        id: result.insertId,
+        user_id: result.insertId,
         username,
         email
       }
@@ -60,9 +55,9 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid password" });
 
     res.json({
-      token: generateToken(user.id),
+      token: generateToken(user.user_id),
       user: {
-        id: user.id,
+        user_id: user.user_id,
         username: user.username,
         email: user.email,
       },
