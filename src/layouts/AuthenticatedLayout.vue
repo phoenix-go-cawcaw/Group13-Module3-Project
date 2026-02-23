@@ -12,55 +12,58 @@ function handleLogout() {
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <div class="container-fluid">
+  <div class="auth-layout">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      <div class="container-fluid">
 
-      <img
-        :src="hobbyLogo"
-        alt="Hobby in a Box Logo"
-        style="height: 65px;"
-        class="me-2"
-      />
+        <img
+          :src="hobbyLogo"
+          alt="Hobby in a Box Logo"
+          style="height: 65px;"
+          class="me-2"
+        />
 
-      <RouterLink class="navbar-brand brand-title me-auto" to="/">
-        Hobby in a Box
-      </RouterLink>
+        <RouterLink class="navbar-brand brand-title me-auto" to="/">
+          Hobby in a Box
+        </RouterLink>
 
-      <ul class="navbar-nav ms-auto me-0 align-items-lg-center gap-lg-2">
-        <li class="nav-item">
-          <RouterLink class="nav-link" to="/">Home</RouterLink>
-        </li>
-        <li class="nav-item">
-          <RouterLink class="nav-link" to="/about">About Us</RouterLink>
-        </li>
-        <li class="nav-item">
-          <RouterLink class="nav-link" to="/products">Products</RouterLink>
-        </li>
-        <li class="nav-item">
-          <RouterLink class="nav-link" to="/pricing">Pricing</RouterLink>
-        </li>
-        <li class="nav-item ms-lg-2">
-          <button
-            class="btn btn-sm btn-outline-light"
-            type="button"
-            @click="handleLogout"
-          >
-            Logout
-          </button>
-        </li>
-      </ul>
+        <ul class="navbar-nav ms-auto me-0 align-items-lg-center gap-lg-2">
+          <li class="nav-item">
+            <RouterLink class="nav-link" to="/">Home</RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link" to="/about">About Us</RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link" to="/products">Products</RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link" to="/pricing">Pricing</RouterLink>
+          </li>
+          <li class="nav-item ms-lg-2">
+            <button
+              class="btn btn-sm btn-outline-light"
+              type="button"
+              @click="handleLogout"
+            >
+              Logout
+            </button>
+          </li>
+        </ul>
 
-    </div>
-  </nav>
+      </div>
+    </nav>
 
-  <RouterView />
+    <RouterView />
+  </div>
 </template>
 
 <style scoped>
-.navbar{
-  margin-bottom: 0;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
 }
 
 .navbar.bg-body-tertiary {
@@ -101,5 +104,7 @@ function handleLogout() {
   color: #fff;
 }
 
-
+.auth-layout {
+  padding-top: 80px;
+}
 </style>
