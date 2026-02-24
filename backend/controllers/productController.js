@@ -15,7 +15,7 @@ export const getProductById = async (req, res) => {
 
     const [rows] = await db.query(
       "SELECT * FROM products WHERE product_id = ?",
-      [id]
+      [id],
     );
 
     if (!rows.length)

@@ -10,8 +10,8 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
 
     const [existing] = await db.query(
-      "SELECT id FROM users WHERE email = ? OR username = ?",
-      [email, username]
+      "SELECT user_id FROM users WHERE email = ? OR username = ?",
+      [email, username],
     );
 
     if (existing.length)
@@ -21,7 +21,7 @@ export const registerUser = async (req, res) => {
 
     const [result] = await db.query(
       "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
-      [username, email, hashedPassword]
+      [username, email, hashedPassword],
     );
 
     const token = generateToken(result.insertId);
@@ -29,12 +29,11 @@ export const registerUser = async (req, res) => {
     res.status(201).json({
       token,
       user: {
-        id: result.insertId,
+        user_id: result.insertId,
         username,
-        email
-      }
+        email,
+      },
     });
-
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -44,10 +43,9 @@ export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const [rows] = await db.query(
-      "SELECT * FROM users WHERE email = ?",
-      [email]
-    );
+    const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [
+      email,
+    ]);
 
     if (!rows.length)
       return res.status(400).json({ message: "User not found" });
@@ -56,13 +54,12 @@ export const loginUser = async (req, res) => {
 
     const valid = await bcrypt.compare(password, user.password);
 
-    if (!valid)
-      return res.status(400).json({ message: "Invalid password" });
+    if (!valid) return res.status(400).json({ message: "Invalid password" });
 
     res.json({
-      token: generateToken(user.id),
+      token: generateToken(user.user_id),
       user: {
-        id: user.id,
+        user_id: user.user_id,
         username: user.username,
         email: user.email,
       },

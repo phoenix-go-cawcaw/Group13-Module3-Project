@@ -75,13 +75,13 @@ const BOX = 240
 const HALF = BOX / 2
 
 const tiles = [
-  { key: 'glass', bg: '#E8A87C', border: '#C06A22', tx: '-80px', ty: '-260px', rot: '-15deg', delay: 0.05, size: 32 },
-  { key: 'utensils', bg: '#81C784', border: '#388E3C', tx: '20px', ty: '-220px', rot: '10deg', delay: 0.10, size: 28 },
-  { key: 'footstep', bg: '#D4856A', border: '#A95A1C', tx: '100px', ty: '-240px', rot: '25deg', delay: 0.15, size: 32 },
-  { key: 'flask', bg: '#A67C52', border: '#7B5E3C', tx: '-120px', ty: '-120px', rot: '-30deg', delay: 0.12, size: 28 },
-  { key: 'sun', bg: '#E2C49A', border: '#C06A22', tx: '130px', ty: '-100px', rot: '15deg', delay: 0.18, size: 32 },
-  { key: 'brush', bg: '#B08060', border: '#8B5E3C', tx: '80px', ty: '-50px', rot: '45deg', delay: 0.20, size: 28 },
-  { key: 'waves', bg: '#D1A877', border: '#A07040', tx: '-80px', ty: '-50px', rot: '-20deg', delay: 0.22, size: 28 },
+  { key: 'glass', bg: '#FF9B5E', border: '#C95A00', tx: '-80px', ty: '-260px', rot: '-15deg', delay: 0.05, size: 32 },
+  { key: 'utensils', bg: '#58D46A', border: '#1F8A2E', tx: '20px', ty: '-220px', rot: '10deg', delay: 0.10, size: 28 },
+  { key: 'footstep', bg: '#F06E4A', border: '#B5401B', tx: '100px', ty: '-240px', rot: '25deg', delay: 0.15, size: 32 },
+  { key: 'flask', bg: '#C68336', border: '#8A4F14', tx: '-120px', ty: '-120px', rot: '-30deg', delay: 0.12, size: 28 },
+  { key: 'sun', bg: '#FFD166', border: '#CC8A00', tx: '130px', ty: '-100px', rot: '15deg', delay: 0.18, size: 32 },
+  { key: 'brush', bg: '#D08A4A', border: '#9A5317', tx: '80px', ty: '-50px', rot: '45deg', delay: 0.20, size: 28 },
+  { key: 'waves', bg: '#F2B94B', border: '#B97800', tx: '-80px', ty: '-50px', rot: '-20deg', delay: 0.22, size: 28 },
 ]
 
 const particles = [
@@ -156,7 +156,7 @@ const particles = [
             </svg>
           </RouterLink>
           <RouterLink to="/pricing" class="btn-secondary">
-            View Pricing
+            View Subscriptions
           </RouterLink>
         </div>
 
@@ -214,7 +214,8 @@ const particles = [
       <div class="box-scene" @mousemove="onMouseMove" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave">
         <!-- BOX DISPLAY -->
 
-        <div class="box-3d" :style="{ transform: `translateX(40px) translateY(130px) rotateX(${springX - 25}deg) rotateY(${springY}deg)` }">
+        <div class="box-3d"
+          :style="{ transform: `translateY(130px) rotateX(${springX - 25}deg) rotateY(${springY}deg)` }">
 
           <div class="box-ground-shadow" />
 
@@ -290,7 +291,6 @@ const particles = [
               </svg>
             </div>
 
-            <!-- Central hero plant -->
             <div class="plant-wrap" :class="{ 'plant-out': isOpen }">
               <div class="plant-stem" />
               <div class="plant-leaf plant-leaf-left" />
@@ -298,7 +298,6 @@ const particles = [
               <div class="plant-flower" />
             </div>
 
-            <!-- Particles -->
             <div v-for="(p, i) in particles" :key="i" class="particle" :class="{ 'particle-out': isOpen }" :style="{
               '--px': p.x + 'px',
               '--py': p.y + 'px',
@@ -337,7 +336,6 @@ const particles = [
   align-items: center;
   justify-content: center;
   padding: 2rem 1.5rem;
-  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
   color: #3E2A1B;
 }
 
@@ -501,7 +499,7 @@ const particles = [
 
 .hero-title {
   font-size: clamp(2rem, 5vw, 3.6rem);
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1.12;
   letter-spacing: -.02em;
   margin: 0 0 1rem;
@@ -624,6 +622,9 @@ const particles = [
 }
 
 .box-scene {
+  width: 100%;
+  max-width: 380px;
+  margin-inline: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -632,6 +633,7 @@ const particles = [
   perspective: 1200px;
   user-select: none;
   cursor: pointer;
+  transform: none;
 }
 
 .box-3d {
@@ -658,8 +660,8 @@ const particles = [
   position: absolute;
   inset: 0;
   border-radius: 10px;
-  backface-visibility: visible; 
-  /* if laggy, switch to hidden (may cause render issues) */
+  backface-visibility: visible;
+  /* if laggy, switch to hidden (visibility may cause website render issues) */
 }
 
 .face-back {
@@ -783,9 +785,7 @@ const particles = [
 .tile-out {
   opacity: 1;
   transform:
-    scale(1)
-    translate(var(--tx), calc(var(--ty) - 80px))
-    rotate(var(--rot));
+    scale(1) translate(var(--tx), calc(var(--ty) - 80px)) rotate(var(--rot));
 }
 
 .plant-wrap {

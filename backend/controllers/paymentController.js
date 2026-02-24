@@ -24,16 +24,25 @@ export const createPayfast = async (req, res) => {
 
     const amount = parseFloat(total_amount).toFixed(2);
 
-    //CHECKOUT RECORD
-    const [checkoutResult] = await pool.execute(
-      `INSERT INTO checkout (user_id, total_amount, voucher_code, status)
-       VALUES (?, ?, ?, ?)`,
-      [user_id, amount, voucher_code || null, "pending"],
+    const [checkoutRows] = await pool.execute(
+      `SELECT checkout_id FROM checkout WHERE user_id = ? ORDER BY checkout_id DESC LIMIT 1`,
+      [user_id],
     );
 
-    const checkoutId = checkoutResult.insertId;
+    if (!checkoutRows.length) {
+      return res.status(400).json({
+        error: "No checkout record found. Please complete checkout first.",
+      });
+    }
 
-    //PAYMENT RECORDS
+    const checkoutId = checkoutRows[0].checkout_id;
+
+    await pool.execute(
+      `UPDATE checkout SET total_amount = ?, voucher_code = ?, status = ? WHERE checkout_id = ?`,
+      [amount, voucher_code || null, "pending", checkoutId],
+    );
+
+    //PAYMENT RECORD
     await pool.execute(
       `INSERT INTO payments (checkout_id, provider, status)
        VALUES (?, ?, ?)`,
@@ -58,8 +67,10 @@ export const createPayfast = async (req, res) => {
       payfastUrl: process.env.PAYFAST_URL,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to create payment" });
+    console.error("Payment creation error:", error);
+    res
+      .status(500)
+      .json({ error: error.message || "Failed to create payment" });
   }
 };
 
@@ -151,8 +162,19 @@ export const confirmPayment = async (req, res) => {
   try {
     const { checkoutId, payment_status, pf_payment_id, amount } = req.body;
 
+    console.log("Confirm payment request received:", {
+      checkoutId,
+      payment_status,
+      pf_payment_id,
+      amount,
+    });
+
+    if (!checkoutId) {
+      return res.status(400).json({ error: "checkoutId is required" });
+    }
+
     const [rows] = await pool.execute(
-      "SELECT total_amount FROM checkout WHERE id = ?",
+      "SELECT total_amount FROM checkout WHERE checkout_id = ?",
       [checkoutId],
     );
 
@@ -163,6 +185,8 @@ export const confirmPayment = async (req, res) => {
     const dbAmount = parseFloat(rows[0].total_amount).toFixed(2);
     const payfastAmount = parseFloat(amount).toFixed(2);
 
+    console.log("Amount comparison:", { dbAmount, payfastAmount });
+
     if (dbAmount !== payfastAmount) {
       return res.status(400).json({ error: "Amount mismatch" });
     }
@@ -172,13 +196,13 @@ export const confirmPayment = async (req, res) => {
         `UPDATE payments
          SET status = 'paid', transaction_id = ?
          WHERE checkout_id = ?`,
-        [pf_payment_id, checkoutId],
+        [pf_payment_id || null, checkoutId],
       );
 
       await pool.execute(
         `UPDATE checkout
          SET status = 'completed'
-         WHERE id = ?`,
+         WHERE checkout_id = ?`,
         [checkoutId],
       );
     }
@@ -186,6 +210,6 @@ export const confirmPayment = async (req, res) => {
     res.json({ message: "Payment updated successfully" });
   } catch (error) {
     console.error("Confirm error:", error);
-    res.status(500).json({ error: "Confirm failed" });
+    res.status(500).json({ error: error.message || "Confirm failed" });
   }
 };

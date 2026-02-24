@@ -1,8 +1,14 @@
 import express from "express";
-import { createCheckout } from "../controllers/checkoutController.js";
+import {
+  addCheckoutInfo,
+  getCheckoutInfo,
+  getCheckoutByUser,
+} from "../controllers/checkoutController.js";
 
 const router = express.Router();
 
-router.post("/", createCheckout);
+router.get("/", getCheckoutInfo);
+router.get("/user/:userId", getCheckoutByUser);
+router.post("/", addCheckoutInfo);
 
 export default router;

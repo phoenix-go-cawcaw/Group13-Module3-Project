@@ -10,7 +10,6 @@ import productRoutes from "./routes/productRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import checkoutRoutes from "./routes/checkoutRoutes.js";
 import subscriptionRoutes from "./routes/subscriptionRoutes.js";
-import shippingRoutes from "./routes/shippingRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 
 const app = express();
@@ -31,7 +30,7 @@ app.use(
       return callback(new Error(`CORS blocked for origin: ${origin}`));
     },
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json());
@@ -43,7 +42,6 @@ app.use("/products", productRoutes);
 app.use("/cart", cartRoutes);
 app.use("/checkout", checkoutRoutes);
 app.use("/subscriptions", subscriptionRoutes);
-app.use("/shipping", shippingRoutes);
 app.use("/payfast", paymentRoutes);
 
 app.get("/test-db", async (req, res) => {

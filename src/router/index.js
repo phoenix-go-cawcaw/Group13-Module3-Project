@@ -3,11 +3,11 @@ import { createRouter, createWebHistory } from "vue-router";
 import AuthenticatedLayout from "../layouts/AuthenticatedLayout.vue";
 import About from "../views/About.vue";
 import Checkout from "../views/Checkout.vue";
-import Confirmation from "../views/Confirmation.vue";
+import Contact from "../views/Contact.vue";
 import Home from "../views/Home.vue";
 import Login from "../views/login.vue";
 import Payfast from "../views/Payfast.vue";
-import Pricing from "../views/Pricing.vue";
+import Pricing from "../views/Subscriptions.vue";
 import Products from "../views/Products.vue";
 import Review from "../views/Review.vue";
 import PaymentSuccess from "../views/PaymentSuccess.vue";
@@ -47,6 +47,11 @@ const router = createRouter({
           component: Pricing,
         },
         {
+          path: "contact",
+          name: "contact",
+          component: Contact,
+        },
+        {
           path: "checkout",
           name: "checkout",
           component: Checkout,
@@ -62,19 +67,14 @@ const router = createRouter({
           component: Payfast,
         },
         {
-          path: "confirmation",
-          name: "confirmation",
-          component: Confirmation,
-        },
-        {
           path: "/payment-success",
           name: "payment-success",
-          component: PaymentSuccess
+          component: PaymentSuccess,
         },
         {
           path: "/payment-cancel",
           name: "payment-cancel",
-          component: PaymentCancel
+          component: PaymentCancel,
         },
       ],
     },
