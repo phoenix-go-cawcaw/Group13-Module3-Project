@@ -2,15 +2,25 @@ import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 
 const cartItems = ref([]);
-const API_URL = "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export function useCart() {
   const getUserId = () => {
     try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      return user.user_id || null;
+      let user = JSON.parse(localStorage.getItem("user") || "null");
+      // If not in localStorage, check sessionStorage
+      if (!user) {
+        user = JSON.parse(sessionStorage.getItem("user") || "null");
+      }
+      console.log("User:", user);
+      if (!user) return null;
+      if (user.user_id) return user.user_id;
+      if (user.user?.id) return user.user.id;
+      if (user.id) return user.id;
+
+      return null;
     } catch (error) {
-      console.error("Failed to parse user from localStorage:", error);
+      console.error("Failed to parse user:", error);
       return null;
     }
   };
