@@ -1,40 +1,17 @@
 <script setup>
-import { onMounted, ref } from "vue"
-import { useRoute } from "vue-router"
+import { ref } from "vue"
 
-const route = useRoute()
-const message = ref("Processing payment...")
-
-onMounted(async () => {
-  try {
-    const response = await fetch("http://localhost:5000/payfast/confirm", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        checkoutId: route.query.m_payment_id,
-        payment_status: route.query.payment_status,
-        pf_payment_id: route.query.pf_payment_id,
-        amount: route.query.amount_gross
-      })
-    })
-
-    const data = await response.json()
-
-    if (response.ok) {
-      message.value = "Payment Successful"
-    } else {
-      message.value = data.error || "Payment verification failed"
-    }
-
-  } catch (err) {
-    console.error(err)
-    message.value = "Server error confirming payment"
-  }
-})
+const message = ref("Payment Processing")
+const details = ref("Your payment has been submitted. Please allow a few moments for processing.")
 </script>
 
 <template>
   <div class="container py-5 text-center">
-    <h2 class="text-success">{{ message }}</h2>
+    <div class="card shadow p-5">
+      <h2 class="text-success mb-3">{{ message }}</h2>
+      <p class="lead">{{ details }}</p>
+      <p class="text-muted">You will receive a confirmation email shortly.</p>
+      <a href="/" class="btn btn-primary mt-3">Return to Home</a>
+    </div>
   </div>
 </template>

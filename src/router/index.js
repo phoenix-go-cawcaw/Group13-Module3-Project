@@ -3,11 +3,10 @@ import { createRouter, createWebHistory } from "vue-router";
 import AuthenticatedLayout from "../layouts/AuthenticatedLayout.vue";
 import About from "../views/About.vue";
 import Checkout from "../views/Checkout.vue";
-import Confirmation from "../views/Confirmation.vue";
 import Home from "../views/Home.vue";
 import Login from "../views/login.vue";
 import Payfast from "../views/Payfast.vue";
-import Pricing from "../views/Pricing.vue";
+import Pricing from "../views/Subscriptions.vue";
 import Products from "../views/Products.vue";
 import Review from "../views/Review.vue";
 import PaymentSuccess from "../views/PaymentSuccess.vue";
@@ -60,11 +59,6 @@ const router = createRouter({
           path: "payfast",
           name: "payfast",
           component: Payfast,
-        },
-        {
-          path: "confirmation",
-          name: "confirmation",
-          component: Confirmation,
         },
         {
           path: "/payment-success",

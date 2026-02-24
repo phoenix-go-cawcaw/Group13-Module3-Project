@@ -156,7 +156,7 @@ const particles = [
             </svg>
           </RouterLink>
           <RouterLink to="/pricing" class="btn-secondary">
-            View Pricing
+            View Subscriptions
           </RouterLink>
         </div>
 
@@ -214,7 +214,8 @@ const particles = [
       <div class="box-scene" @mousemove="onMouseMove" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave">
         <!-- BOX DISPLAY -->
 
-        <div class="box-3d" :style="{ transform: `translateY(130px) rotateX(${springX - 25}deg) rotateY(${springY}deg)` }">
+        <div class="box-3d"
+          :style="{ transform: `translateY(130px) rotateX(${springX - 25}deg) rotateY(${springY}deg)` }">
 
           <div class="box-ground-shadow" />
 
@@ -335,7 +336,6 @@ const particles = [
   align-items: center;
   justify-content: center;
   padding: 2rem 1.5rem;
-  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
   color: #3E2A1B;
 }
 
@@ -499,7 +499,7 @@ const particles = [
 
 .hero-title {
   font-size: clamp(2rem, 5vw, 3.6rem);
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1.12;
   letter-spacing: -.02em;
   margin: 0 0 1rem;
@@ -660,8 +660,8 @@ const particles = [
   position: absolute;
   inset: 0;
   border-radius: 10px;
-  backface-visibility: visible; 
-  /* if laggy, switch to hidden (may cause render issues) */
+  backface-visibility: visible;
+  /* if laggy, switch to hidden (visibility may cause website render issues) */
 }
 
 .face-back {
@@ -785,9 +785,7 @@ const particles = [
 .tile-out {
   opacity: 1;
   transform:
-    scale(1)
-    translate(var(--tx), calc(var(--ty) - 80px))
-    rotate(var(--rot));
+    scale(1) translate(var(--tx), calc(var(--ty) - 80px)) rotate(var(--rot));
 }
 
 .plant-wrap {
@@ -928,6 +926,4 @@ const particles = [
     transform: translateY(0);
   }
 }
-
-
 </style>

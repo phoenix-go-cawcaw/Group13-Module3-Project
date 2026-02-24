@@ -1,8 +1,8 @@
-import express from 'express';
+import express from "express";
 import {
-    createPayfast,
-    handleITN,
-    confirmPayment
+  createPayfast,
+  handleITN,
+  confirmPayment,
 } from "../controllers/paymentController.js";
 
 const router = express.Router();
