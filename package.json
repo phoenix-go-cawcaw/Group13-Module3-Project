@@ -10,12 +10,18 @@
     "format": "oxfmt src/"
   },
   "dependencies": {
+
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.17.1",
+
+    "axios": "^1.13.5",
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
+    "primeicons": "^7.0.0", 
     "vue": "^3.5.27",
     "vue-router": "^5.0.1"
   },
