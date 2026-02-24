@@ -1,1 +1,0 @@
-import{_ as t,c as s,a as o,o as c}from"./index-3-LISEpE.js";const a={},n={class:"container py-4"};function r(_,e){return c(),s("main",n,[...e[0]||(e[0]=[o("h1",{class:"h3"},"Checkout",-1),o("p",{class:"text-body-secondary"},"Checkout page is ready for content.",-1)])])}const f=t(a,[["render",r]]);export{f as default};
