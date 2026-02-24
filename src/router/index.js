@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import AuthenticatedLayout from "../layouts/AuthenticatedLayout.vue";
 import About from "../views/About.vue";
 import Checkout from "../views/Checkout.vue";
+import Contact from "../views/Contact.vue";
 import Home from "../views/Home.vue";
 import Login from "../views/login.vue";
 import Payfast from "../views/Payfast.vue";
@@ -46,6 +47,11 @@ const router = createRouter({
           component: Pricing,
         },
         {
+          path: "contact",
+          name: "contact",
+          component: Contact,
+        },
+        {
           path: "checkout",
           name: "checkout",
           component: Checkout,
@@ -63,12 +69,12 @@ const router = createRouter({
         {
           path: "/payment-success",
           name: "payment-success",
-          component: PaymentSuccess
+          component: PaymentSuccess,
         },
         {
           path: "/payment-cancel",
           name: "payment-cancel",
-          component: PaymentCancel
+          component: PaymentCancel,
         },
       ],
     },

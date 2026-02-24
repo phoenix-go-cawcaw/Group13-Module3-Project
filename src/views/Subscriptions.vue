@@ -106,6 +106,14 @@ function handleSubscribeNow(plan) {
   router.push('/checkout')
 }
 
+function goToProducts() {
+  router.push('/products')
+}
+
+function goToContact() {
+  router.push('/contact')
+}
+
 function cardStyle(index) {
   return {
     opacity: visibleCards.value.has(index) ? 1 : 0,
@@ -187,8 +195,8 @@ function featureStyle(cardIndex, featureIndex) {
             Contact our team for personalized recommendations or explore our one-time boxes first.
           </p>
           <div class="cta-buttons">
-            <button class="btn-outline">Contact Us</button>
-            <button class="btn-solid">Browse Products</button>
+            <button class="btn-outline" @click="goToContact">Contact Us</button>
+            <button class="btn-solid" @click="goToProducts">Browse Products</button>
           </div>
         </div>
       </div>

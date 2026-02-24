@@ -234,6 +234,14 @@ const features = [
       </div>
     </section>
 
+    <section class="section contact-cta-section">
+      <div class="contact-cta-container">
+        <h2 class="contact-cta-title">Questions? We'd Love to Hear From You</h2>
+        <p class="contact-cta-subtitle">Get in touch with our team for personalized recommendations</p>
+        <RouterLink to="/contact" class="contact-cta-btn">Contact Us</RouterLink>
+      </div>
+    </section>
+
     <section class="section footer-section">
       <div ref="footerLogo" class="footer-logo anim-scale-up">
         <div class="logo-circle">
@@ -683,5 +691,104 @@ const features = [
   color: #5A3A22;
   opacity: .6;
   margin: 0;
+}
+
+.contact-cta-section {
+  padding: 4rem 1.5rem;
+  background: linear-gradient(135deg, #F3E6D3 0%, #E8D5BE 100%);
+  text-align: center;
+}
+
+.contact-cta-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.contact-cta-title {
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  font-weight: 800;
+  color: #3E2A1B;
+  margin: 0 0 1rem;
+}
+
+.contact-cta-subtitle {
+  font-size: 1.05rem;
+  color: #5A3A22;
+  margin: 0 0 2rem;
+}
+
+.contact-cta-btn {
+  display: inline-block;
+  padding: 0.875rem 2.5rem;
+  border-radius: 999px;
+  background: #3E2A1B;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 16px rgba(62, 42, 27, 0.2);
+}
+
+.contact-cta-btn:hover {
+  background: #5A3A22;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(62, 42, 27, 0.3);
+}
+
+.contact-cta-btn:active {
+  transform: translateY(0);
+}
+
+.footer-copy {
+  font-size: .85rem;
+  color: #5A3A22;
+  opacity: .6;
+  margin: 0;
+}
+
+.contact-cta-section {
+  padding: 4rem 1.5rem;
+  background: linear-gradient(135deg, #F3E6D3 0%, #E8D5BE 100%);
+  text-align: center;
+}
+
+.contact-cta-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.contact-cta-title {
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  font-weight: 800;
+  color: #3E2A1B;
+  margin: 0 0 1rem;
+}
+
+.contact-cta-subtitle {
+  font-size: 1.05rem;
+  color: #5A3A22;
+  margin: 0 0 2rem;
+}
+
+.contact-cta-btn {
+  display: inline-block;
+  padding: 0.875rem 2.5rem;
+  border-radius: 999px;
+  background: #3E2A1B;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 16px rgba(62, 42, 27, 0.2);
+}
+
+.contact-cta-btn:hover {
+  background: #5A3A22;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(62, 42, 27, 0.3);
+}
+
+.contact-cta-btn:active {
+  transform: translateY(0);
 }
 </style>
