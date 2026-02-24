@@ -1,0 +1,23 @@
+body {
+  margin: 0;
+  background: linear-gradient(135deg, #F3E6D3, #E2C49A);
+}
+
+
+h1 {
+  margin-top: 0;
+}
+
+.navbar {
+  margin-bottom: 0;
+}
+
+#app{
+  margin: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}

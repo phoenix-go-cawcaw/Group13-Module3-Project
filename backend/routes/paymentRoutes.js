@@ -1,13 +1,14 @@
-import express from 'express';
+import express from "express";
 import {
-    createPayfast,
-    updatePayfast
-} from "../controllers/paymentCon.js";
-
+  createPayfast,
+  handleITN,
+  confirmPayment,
+} from "../controllers/paymentController.js";
 
 const router = express.Router();
 
-router.post("/payfast/create", createPayfast)
-router.post("/payfast/update", updatePayfast)
+router.post("/confirm", confirmPayment);
+router.post("/create", createPayfast);
+router.post("/itn", handleITN);
 
 export default router;
