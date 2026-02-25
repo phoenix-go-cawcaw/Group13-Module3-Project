@@ -5,7 +5,7 @@ import axios from 'axios'
 
 const router = useRouter()
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
+const API_URL = import.meta.env.VITE_API_URL || "https://sylas-indorsable-epifania.ngrok-free.dev"
 
 const username = ref('')
 const email = ref('')
@@ -70,7 +70,7 @@ async function handleSubmit() {
     const payload = isLogin.value
       ? { email: email.value, password: password.value }
       : { username: username.value, email: email.value, password: password.value }
-    
+
     const response = await axios.post(endpoint, payload)
     const { token, user } = response.data
 

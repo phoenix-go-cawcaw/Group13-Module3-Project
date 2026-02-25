@@ -4,12 +4,13 @@ import axios from "axios"
 
 const route = useRoute()
 const router = useRouter()
+const API_URL = import.meta.env.VITE_API_URL || "https://sylas-indorsable-epifania.ngrok-free.dev"
 
 const checkoutId = route.params.id
 
 const handlePayment = async (status) => {
   try {
-    await axios.post("http://localhost:5000/api/payments/payfast/update", {
+    await axios.post(`${API_URL}/api/payments/payfast/update`, {
       checkoutId,
       status
     })

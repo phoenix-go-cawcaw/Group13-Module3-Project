@@ -20,12 +20,14 @@ const allowedOrigins = (process.env.CORS_ORIGINS || "")
   .filter(Boolean);
 
 const localOriginPattern = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i;
+const ngrokPattern = /^https:\/\/.*\.ngrok(?:-free)?\.dev$/i;
 
 app.use(
   cors({
     origin(origin, callback) {
       if (!origin) return callback(null, true);
       if (localOriginPattern.test(origin)) return callback(null, true);
+      if (ngrokPattern.test(origin)) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error(`CORS blocked for origin: ${origin}`));
     },
@@ -58,7 +60,10 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+const HOST = process.env.HOST || "0.0.0.0";
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(
+    `Server running on http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}`,
+  );
 });

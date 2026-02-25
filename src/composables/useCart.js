@@ -2,7 +2,9 @@ import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 
 const cartItems = ref([]);
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://sylas-indorsable-epifania.ngrok-free.dev";
 
 export function useCart() {
   const getUserId = () => {

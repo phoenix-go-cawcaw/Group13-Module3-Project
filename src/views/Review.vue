@@ -7,7 +7,7 @@ const route = useRoute()
 const router = useRouter()
 const { cartItems, cartTotal } = useCart()
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
+const API_URL = import.meta.env.VITE_API_URL || "https://sylas-indorsable-epifania.ngrok-free.dev"
 
 const SHIPPING_COST = 50
 
@@ -31,8 +31,6 @@ const totalAmount = computed(() => {
   return (itemTotal.value + SHIPPING_COST).toFixed(2)
 })
 
-const voucherCode = null
-
 const handlePayNow = async () => {
   try {
     // Check if user is logged in
@@ -42,60 +40,23 @@ const handlePayNow = async () => {
       return;
     }
 
-    console.log("Step 1: Creating checkout record...");
-    console.log("Route query:", route.query);
-    
-    const checkoutData = {
-      full_name: route.query.name,
-      email: route.query.email,
-      address: route.query.address,
-      city: route.query.city,
-      postal_code: route.query.postalCode,
-      user_id: userId
-    };
+    // Use the checkoutId passed from Checkout view (no duplicate creation)
+    const checkoutId = route.query.checkoutId;
+    console.log("Using existing checkout ID:", checkoutId);
 
-    console.log("Sending checkout data:", checkoutData);
-
-    const checkoutResponse = await fetch(`${API_URL}/checkout`, {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(checkoutData)
-    });
-
-    const responseData = await checkoutResponse.json();
-    console.log("Checkout response:", responseData);
-
-    if (!checkoutResponse.ok) {
-      console.error("Checkout creation failed:", responseData);
-      alert("Failed to create checkout: " + (responseData.message || responseData.error || "Unknown error"));
+    if (!checkoutId) {
+      alert("Checkout ID not found. Please return to checkout.");
       return;
     }
 
-    console.log("Step 2: Fetching checkout ID...");
-    
-    const checkoutInfoResponse = await fetch(`${API_URL}/checkout/user/${userId}`);
-    const userCheckouts = await checkoutInfoResponse.json();
-    console.log("User checkouts:", userCheckouts);
+    console.log("Step 1: Creating payment with PayFast...");
 
-    if (!userCheckouts.length) {
-      alert("No checkout record found");
-      return;
-    }
-    
-    const checkoutId = userCheckouts[0].checkout_id;
-    console.log("Using checkout ID:", checkoutId);
-
-    console.log("Step 3: Creating payment with PayFast...");
-    
     const paymentResponse = await fetch(`${API_URL}/payfast/create`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         user_id: userId,
-        total_amount: totalAmount.value,
-        voucher_code: voucherCode
+        total_amount: totalAmount.value
       })
     });
 
@@ -115,7 +76,8 @@ const handlePayNow = async () => {
     }
 
     console.log("Step 4: Redirecting to PayFast...");
-    
+    console.log("Form data to submit:", paymentData.paymentData);
+
     const form = document.createElement("form");
     form.method = "POST";
     form.action = paymentData.payfastUrl;
@@ -124,8 +86,9 @@ const handlePayNow = async () => {
       const input = document.createElement("input");
       input.type = "hidden";
       input.name = key;
-      input.value = value;
+      input.value = String(value); // Ensure value is a string
       form.appendChild(input);
+      console.log(`Added form field: ${key}=${value}`);
     });
 
     document.body.appendChild(form);
@@ -161,7 +124,7 @@ const handlePayNow = async () => {
             <div class="detail-box">
               <div class="detail-row">
                 <span class="detail-label">Name:</span>
-                <span class="detail-value">{{ route.query.name }}</span>
+                <span class="detail-value">{{ route.query.firstName }} {{ route.query.lastName }}</span>
               </div>
               <div class="detail-row">
                 <span class="detail-label">Email:</span>

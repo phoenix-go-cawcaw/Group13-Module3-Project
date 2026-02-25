@@ -7,23 +7,30 @@ import axios from 'axios'
 const router = useRouter()
 const { cartItems, cartTotal } = useCart()
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
+const API_URL = import.meta.env.VITE_API_URL || "https://sylas-indorsable-epifania.ngrok-free.dev"
 const SHIPPING_COST = 50
 const subscription = ref(null)
 const isSubscriptionCheckout = ref(false)
 
 const form = ref({
-  full_name: '',
+  first_name: '',
+  last_name: '',
   email: '',
-  country: '',
   address: '',
   city: '',
-  province: '',
   postal_code: '',
+  country: '',   // The optional fields
+  province: '',
   phonenumber: ''
 })
 
 onMounted(() => {
+  // Pre-fill if logged in
+  const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}')
+  if (user.email) {
+    form.value.email = user.email
+  }
+
   const subData = sessionStorage.getItem('subscriptionCheckout')
   if (subData) {
     subscription.value = JSON.parse(subData)
@@ -56,24 +63,32 @@ async function goToReview() {
     const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}')
     const userId = user.user_id || user.id || null
 
-    if (!form.value.full_name || !form.value.email || !form.value.address || !form.value.city || !form.value.postal_code) {
-      alert("Please fill in all required fields")
+    if (!form.value.first_name || !form.value.last_name || !form.value.email ||
+      !form.value.address || !form.value.city || !form.value.postal_code) {
+      alert("Please fill in all required fields: First Name, Last Name, Email, Address, City, and Postal Code")
       return
     }
 
-    await axios.post(`${API_URL}/checkout`, {
-      full_name: form.value.full_name,
+    const checkoutData = {
+      first_name: form.value.first_name,
+      last_name: form.value.last_name,
       email: form.value.email,
       address: form.value.address,
       city: form.value.city,
       postal_code: form.value.postal_code,
-      user_id: userId
-    })
+      user_id: userId || null
+    }
+
+    const response = await axios.post(`${API_URL}/checkout`, checkoutData)
+
+    const checkoutId = response.data.checkout_id
 
     router.push({
       name: 'review',
       query: {
-        name: form.value.full_name,
+        checkoutId: checkoutId,
+        firstName: form.value.first_name,
+        lastName: form.value.last_name,
         email: form.value.email,
         address: form.value.address,
         city: form.value.city,
@@ -110,64 +125,76 @@ async function goToReview() {
 
                   <div class="form-group-section">
                     <h3 class="section-title">
-                      <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+                      <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
                       </svg>
-                      Contact Information
+                      Personal Information
                     </h3>
                     <div class="input-grid-2">
                       <div class="field">
-                        <label for="full_name">Full Name *</label>
-                        <input id="full_name" v-model="form.full_name" type="text" required />
+                        <label for="first_name">First Name *</label>
+                        <input id="first_name" v-model="form.first_name" type="text" required placeholder="John" />
                       </div>
                       <div class="field">
-                        <label for="email">Email Address *</label>
-                        <input id="email" v-model="form.email" type="email" required />
+                        <label for="last_name">Last Name *</label>
+                        <input id="last_name" v-model="form.last_name" type="text" required placeholder="Doe" />
                       </div>
+                    </div>
+                    <div class="field">
+                      <label for="email">Email Address *</label>
+                      <input id="email" v-model="form.email" type="email" required placeholder="john@example.com" />
                     </div>
                   </div>
 
                   <div class="form-group-section">
                     <h3 class="section-title">
-                      <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                        <polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/>
+                      <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                          d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                        <polyline points="3.29 7 12 12 20.71 7" />
+                        <line x1="12" y1="22" x2="12" y2="12" />
                       </svg>
                       Shipping Address
                     </h3>
                     <div class="field">
                       <label for="address">Street Address *</label>
-                      <input id="address" v-model="form.address" type="text" required />
-                    </div>
-                    <div class="input-grid-2">
-                      <div class="field">
-                        <label for="city">City *</label>
-                        <input id="city" v-model="form.city" type="text" required />
-                      </div>
-                      <div class="field">
-                        <label for="province">Province / State</label>
-                        <input id="province" v-model="form.province" type="text" />
-                      </div>
-                    </div>
-                    <div class="input-grid-2">
-                      <div class="field">
-                        <label for="postal_code">Postal Code *</label>
-                        <input id="postal_code" v-model="form.postal_code" type="text" required />
-                      </div>
-                      <div class="field">
-                        <label for="country">Country *</label>
-                        <input id="country" v-model="form.country" type="text" required />
-                      </div>
+                      <input id="address" v-model="form.address" type="text" required placeholder="123 Main St" />
                     </div>
                     <div class="field">
-                      <label for="phonenumber">Phone Number</label>
-                      <input id="phonenumber" v-model="form.phonenumber" type="tel" />
+                      <label for="city">City *</label>
+                      <input id="city" v-model="form.city" type="text" required placeholder="Cape Town" />
+                    </div>
+                    <div class="field">
+                      <label for="postal_code">Postal Code *</label>
+                      <input id="postal_code" v-model="form.postal_code" type="text" required placeholder="8001" />
+                    </div>
+
+                    <!-- Optional fields - can be removed if not needed -->
+                    <div class="input-grid-2 optional-fields">
+                      <div class="field">
+                        <label for="province">Province / State (Optional)</label>
+                        <input id="province" v-model="form.province" type="text" placeholder="Western Cape" />
+                      </div>
+                      <div class="field">
+                        <label for="country">Country (Optional)</label>
+                        <input id="country" v-model="form.country" type="text" placeholder="South Africa" />
+                      </div>
+                    </div>
+
+                    <div class="field">
+                      <label for="phonenumber">Phone Number (Optional)</label>
+                      <input id="phonenumber" v-model="form.phonenumber" type="tel" placeholder="+27 123 456 789" />
                     </div>
                   </div>
 
                   <button type="submit" class="btn-primary-full">
-                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="9 11 12 14 22 4" />
+                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
                     </svg>
                     Continue to Review
                   </button>
@@ -225,7 +252,7 @@ async function goToReview() {
               </div>
 
               <div v-if="!isSubscriptionCheckout" class="shipping-note">
-                <p>Shipping: One-time charge</p>
+                <p>Shipping: One-time charge of R{{ SHIPPING_COST.toFixed(2) }}</p>
               </div>
             </div>
           </div>
@@ -250,7 +277,11 @@ async function goToReview() {
   --radius: 0.625rem;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 .checkout-page {
   min-height: 100vh;
@@ -351,6 +382,11 @@ async function goToReview() {
   }
 }
 
+.optional-fields {
+  margin-top: 0.5rem;
+  opacity: 0.9;
+}
+
 .field {
   display: flex;
   flex-direction: column;
@@ -378,6 +414,11 @@ async function goToReview() {
 .field input:focus {
   border-color: #6b4423;
   box-shadow: 0 0 0 3px rgba(107, 68, 35, 0.12);
+}
+
+.field input::placeholder {
+  color: #b8a692;
+  opacity: 0.7;
 }
 
 .btn-primary-full {
@@ -430,7 +471,9 @@ async function goToReview() {
   border-bottom: 1px solid #f5ebe0;
 }
 
-.item-info { flex: 1; }
+.item-info {
+  flex: 1;
+}
 
 .item-name {
   font-weight: 500;

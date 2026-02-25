@@ -3,7 +3,8 @@ import { db } from "../config/db.js";
 export const addCheckoutInfo = async (req, res) => {
   try {
     const {
-      full_name,
+      first_name,
+      last_name,
       email,
       address,
       city,
@@ -11,10 +12,17 @@ export const addCheckoutInfo = async (req, res) => {
       user_id = null, //null for guest checkout
     } = req.body;
 
-    if (!full_name || !email || !address || !city || !postal_code) {
+    if (
+      !first_name ||
+      !last_name ||
+      !email ||
+      !address ||
+      !city ||
+      !postal_code
+    ) {
       return res.status(400).json({
         message:
-          "Missing required fields: full_name, email, address, city, and postal_code are required",
+          "Missing required fields: first_name, last_name, email, address, city, and postal_code are required",
       });
     }
 
@@ -23,16 +31,19 @@ export const addCheckoutInfo = async (req, res) => {
       return res.status(400).json({ message: "Invalid email format" });
     }
 
-    await db.query(
+    const result = await db.query(
       `INSERT INTO checkout
-       (user_id, full_name, email, address, city, postal_code)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [user_id, full_name, email, address, city, postal_code],
+       (user_id, first_name, last_name, email, address, city, postal_code)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [user_id, first_name, last_name, email, address, city, postal_code],
     );
+
+    const checkoutId = result[0].insertId;
 
     res.status(201).json({
       message: "Checkout information saved successfully",
-      data: { full_name, email, city },
+      data: { first_name, last_name, email, city },
+      checkout_id: checkoutId,
     });
   } catch (err) {
     console.error("Checkout error:", err);
@@ -43,7 +54,7 @@ export const addCheckoutInfo = async (req, res) => {
 export const getCheckoutInfo = async (req, res) => {
   try {
     const [rows] = await db.query(`
-      SELECT checkout_id, user_id, full_name, email, address, city, postal_code 
+      SELECT checkout_id, user_id, first_name, last_name, email, address, city, postal_code 
       FROM checkout 
       ORDER BY checkout_id DESC
     `);
@@ -59,7 +70,7 @@ export const getCheckoutByUser = async (req, res) => {
     const { userId } = req.params;
 
     const [rows] = await db.query(
-      `SELECT checkout_id, full_name, email, address, city, postal_code 
+      `SELECT checkout_id, first_name, last_name, email, address, city, postal_code 
        FROM checkout 
        WHERE user_id = ? 
        ORDER BY checkout_id DESC`,
