@@ -7,6 +7,7 @@ import axios from 'axios'
 const router = useRouter()
 const { cartItems, cartTotal } = useCart()
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
 const SHIPPING_COST = 50
 const subscription = ref(null)
 const isSubscriptionCheckout = ref(false)
@@ -52,11 +53,21 @@ const checkoutItems = computed(() => {
 
 async function goToReview() {
   try {
-    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}')
+    const userId = user.user_id || user.id || null
 
-    await axios.post("http://localhost:5000/checkout", {
-      ...form.value,
-      user_id: user.user_id || null
+    if (!form.value.full_name || !form.value.email || !form.value.address || !form.value.city || !form.value.postal_code) {
+      alert("Please fill in all required fields")
+      return
+    }
+
+    await axios.post(`${API_URL}/checkout`, {
+      full_name: form.value.full_name,
+      email: form.value.email,
+      address: form.value.address,
+      city: form.value.city,
+      postal_code: form.value.postal_code,
+      user_id: userId
     })
 
     router.push({
@@ -64,6 +75,9 @@ async function goToReview() {
       query: {
         name: form.value.full_name,
         email: form.value.email,
+        address: form.value.address,
+        city: form.value.city,
+        postalCode: form.value.postal_code,
         isSubscription: isSubscriptionCheckout.value,
         subscriptionId: subscription.value?.subscription_id || null,
         subscriptionName: subscription.value?.subscription_name || null,
@@ -73,7 +87,8 @@ async function goToReview() {
       }
     })
   } catch (error) {
-    console.error(error)
+    console.error("Checkout error:", error.response?.data || error.message)
+    alert("Failed to save checkout information: " + (error.response?.data?.message || error.message))
   }
 }
 </script>

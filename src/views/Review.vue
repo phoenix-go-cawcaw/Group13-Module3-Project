@@ -7,10 +7,13 @@ const route = useRoute()
 const router = useRouter()
 const { cartItems, cartTotal } = useCart()
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
+
 const SHIPPING_COST = 50
 
-const user = JSON.parse(localStorage.getItem('user') || '{}')
-const userId = user.user_id || null
+// Check both localStorage and sessionStorage for user
+const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}')
+const userId = user.user_id || user.id || null
 
 const isSubscription = computed(() => route.query.isSubscription === 'true')
 
@@ -32,7 +35,61 @@ const voucherCode = null
 
 const handlePayNow = async () => {
   try {
-    const response = await fetch("http://localhost:5000/payfast/create", {
+    // Check if user is logged in
+    if (!userId) {
+      alert("Please log in to continue");
+      router.push('/login');
+      return;
+    }
+
+    console.log("Step 1: Creating checkout record...");
+    console.log("Route query:", route.query);
+    
+    const checkoutData = {
+      full_name: route.query.name,
+      email: route.query.email,
+      address: route.query.address,
+      city: route.query.city,
+      postal_code: route.query.postalCode,
+      user_id: userId
+    };
+
+    console.log("Sending checkout data:", checkoutData);
+
+    const checkoutResponse = await fetch(`${API_URL}/checkout`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(checkoutData)
+    });
+
+    const responseData = await checkoutResponse.json();
+    console.log("Checkout response:", responseData);
+
+    if (!checkoutResponse.ok) {
+      console.error("Checkout creation failed:", responseData);
+      alert("Failed to create checkout: " + (responseData.message || responseData.error || "Unknown error"));
+      return;
+    }
+
+    console.log("Step 2: Fetching checkout ID...");
+    
+    const checkoutInfoResponse = await fetch(`${API_URL}/checkout/user/${userId}`);
+    const userCheckouts = await checkoutInfoResponse.json();
+    console.log("User checkouts:", userCheckouts);
+
+    if (!userCheckouts.length) {
+      alert("No checkout record found");
+      return;
+    }
+    
+    const checkoutId = userCheckouts[0].checkout_id;
+    console.log("Using checkout ID:", checkoutId);
+
+    console.log("Step 3: Creating payment with PayFast...");
+    
+    const paymentResponse = await fetch(`${API_URL}/payfast/create`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -40,43 +97,45 @@ const handlePayNow = async () => {
         total_amount: totalAmount.value,
         voucher_code: voucherCode
       })
-    })
+    });
 
-    if (!response.ok) {
-      const errorData = await response.json()
-      console.error("Payment error:", errorData)
-      alert(`Payment failed: ${errorData.error}`)
-      return
+    const paymentData = await paymentResponse.json();
+    console.log("Payment response:", paymentData);
+
+    if (!paymentResponse.ok) {
+      console.error("Payment creation failed:", paymentData);
+      alert("Failed to create payment: " + (paymentData.error || "Unknown error"));
+      return;
     }
 
-    const data = await response.json()
-
-    if (!data.paymentData) {
-      console.error("No payment data in response:", data)
-      alert("Failed to prepare payment")
-      return
+    if (!paymentData.paymentData) {
+      console.error("No payment data in response:", paymentData);
+      alert("Failed to prepare payment");
+      return;
     }
 
-    const form = document.createElement("form")
-    form.method = "POST"
-    form.action = data.payfastUrl
+    console.log("Step 4: Redirecting to PayFast...");
+    
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = paymentData.payfastUrl;
 
-    Object.entries(data.paymentData).forEach(([key, value]) => {
-      const input = document.createElement("input")
-      input.type = "hidden"
-      input.name = key
-      input.value = value
-      form.appendChild(input)
-    })
+    Object.entries(paymentData.paymentData).forEach(([key, value]) => {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = value;
+      form.appendChild(input);
+    });
 
-    document.body.appendChild(form)
-    form.submit()
+    document.body.appendChild(form);
+    form.submit();
 
   } catch (err) {
-    console.error("Payment error:", err)
-    alert("Error processing payment: " + err.message)
+    console.error("Payment error:", err);
+    alert("Error processing payment: " + err.message);
   }
-}
+};
 </script>
 
 <template>
@@ -92,8 +151,10 @@ const handlePayNow = async () => {
 
           <div class="review-section">
             <h3 class="section-title">
-              <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+              <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
               Customer Details
             </h3>
@@ -111,16 +172,19 @@ const handlePayNow = async () => {
 
           <div class="review-section">
             <h3 class="section-title">
-              <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                <polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/>
+              <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                <polyline points="3.29 7 12 12 20.71 7" />
+                <line x1="12" y1="22" x2="12" y2="12" />
               </svg>
               {{ isSubscription ? 'Subscription Details' : 'Order Summary' }}
             </h3>
 
             <div v-if="cartItems.length > 0 || isSubscription" class="items-list">
               <div v-if="isSubscription" class="item-row">
-                <span class="item-name">{{ route.query.subscriptionName }}</span>
+                <span class="item-name">{{ route.query.subscriptionName || 'Subscription' }}</span>
                 <span class="item-price">R{{ itemTotal.toFixed(2) }}</span>
               </div>
               <div v-else v-for="item in cartItems" :key="item.id" class="item-row">
@@ -164,14 +228,18 @@ const handlePayNow = async () => {
 
           <div class="action-buttons">
             <button class="btn-outline" @click="router.back()">
-              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
               </svg>
               Back to Checkout
             </button>
             <button class="btn-primary" @click="handlePayNow">
-              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                <line x1="1" y1="10" x2="23" y2="10" />
               </svg>
               Confirm &amp; Pay
             </button>
@@ -188,7 +256,11 @@ const handlePayNow = async () => {
 </template>
 
 <style scoped>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 .review-page {
   min-height: 100vh;
@@ -231,7 +303,9 @@ const handlePayNow = async () => {
 }
 
 @media (max-width: 640px) {
-  .card-body { padding: 1.25rem; }
+  .card-body {
+    padding: 1.25rem;
+  }
 }
 
 .review-section {
@@ -276,8 +350,14 @@ const handlePayNow = async () => {
   font-size: 0.9rem;
 }
 
-.detail-label { color: #8b7355; }
-.detail-value { font-weight: 500; color: #3d2817; }
+.detail-label {
+  color: #8b7355;
+}
+
+.detail-value {
+  font-weight: 500;
+  color: #3d2817;
+}
 
 .items-list {
   display: flex;
@@ -383,7 +463,9 @@ const handlePayNow = async () => {
 }
 
 @media (max-width: 480px) {
-  .action-buttons { grid-template-columns: 1fr; }
+  .action-buttons {
+    grid-template-columns: 1fr;
+  }
 }
 
 .btn-outline,

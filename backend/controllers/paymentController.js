@@ -2,6 +2,8 @@ import pool from "../config/db.js";
 import crypto from "crypto";
 import axios from "axios";
 
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+
 function generateSignature(data) {
   const sortedKeys = Object.keys(data)
     .filter((key) => data[key] !== "" && key !== "signature")
@@ -52,12 +54,12 @@ export const createPayfast = async (req, res) => {
     const paymentData = {
       merchant_id: process.env.PAYFAST_MERCHANT_ID,
       merchant_key: process.env.PAYFAST_MERCHANT_KEY,
-      return_url: "http://localhost:5173/payment-success",
-      cancel_url: "http://localhost:5173/payment-cancel",
+      return_url: `${frontendUrl}/payment-success?checkout_id=${checkoutId}`,
+      cancel_url: `${frontendUrl}/payment-cancel`,
       m_payment_id: checkoutId.toString(),
       amount: amount,
-      item_name: "Hobby Box Test",
-      email_address: "test@test.com",
+      item_name: "Hobby Box Order",
+      email_address: "customerEmail",
     };
 
     paymentData.signature = generateSignature(paymentData);

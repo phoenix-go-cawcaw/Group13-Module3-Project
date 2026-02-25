@@ -5,6 +5,8 @@ import axios from 'axios'
 
 const router = useRouter()
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
+
 const username = ref('')
 const email = ref('')
 const password = ref('')
@@ -62,22 +64,29 @@ async function handleSubmit() {
     errorMessage.value = ''
 
     const endpoint = isLogin.value
-      ? 'http://localhost:5000/auth/login'
-      : 'http://localhost:5000/auth/register'
+      ? `${API_URL}/auth/login`
+      : `${API_URL}/auth/register`
 
     const payload = isLogin.value
       ? { email: email.value, password: password.value }
       : { username: username.value, email: email.value, password: password.value }
-
+    
     const response = await axios.post(endpoint, payload)
     const { token, user } = response.data
 
+    const normalizedUser = {
+      user_id: user.id || user.user_id,
+      id: user.id,
+      username: user.username,
+      email: user.email
+    }
+
     if (rememberMe.value) {
       localStorage.setItem('token', token)
-      localStorage.setItem('user', JSON.stringify(user))
+      localStorage.setItem('user', JSON.stringify(normalizedUser))
     } else {
       sessionStorage.setItem('token', token)
-      sessionStorage.setItem('user', JSON.stringify(user))
+      sessionStorage.setItem('user', JSON.stringify(normalizedUser))
     }
 
     isSubmitting.value = false
@@ -93,6 +102,7 @@ async function handleSubmit() {
   } catch (err) {
     isSubmitting.value = false
     password.value = ''
+    console.error("Login error:", err.response?.data || err.message);
     errorMessage.value = err.response?.data?.message || 'Delivery failed. Please try again.'
   }
 }
