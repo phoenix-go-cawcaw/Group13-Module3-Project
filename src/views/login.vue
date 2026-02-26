@@ -75,8 +75,7 @@ async function handleSubmit() {
     const { token, user } = response.data
 
     const normalizedUser = {
-      user_id: user.id || user.user_id,
-      id: user.id,
+      user_id: user.user_id,
       username: user.username,
       email: user.email
     }
@@ -93,10 +92,11 @@ async function handleSubmit() {
     isSuccess.value = true
 
     setTimeout(() => {
-      router.push({
-        path: '/',
-        query: { welcome: isLogin.value ? 'back' : 'new' }
-      })
+      if (!isLogin.value) {
+        router.push({ name: 'preferences' })
+      } else {
+        router.push({ path: '/' })
+      }
     }, 1000)
 
   } catch (err) {

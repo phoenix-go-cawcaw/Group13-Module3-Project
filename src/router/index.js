@@ -6,11 +6,13 @@ import Checkout from "../views/Checkout.vue";
 import Contact from "../views/Contact.vue";
 import Home from "../views/Home.vue";
 import Login from "../views/login.vue";
-import Pricing from "../views/Subscriptions.vue";
 import Products from "../views/Products.vue";
 import Review from "../views/Review.vue";
 import PaymentSuccess from "../views/PaymentSuccess.vue";
 import PaymentCancel from "../views/PaymentCancel.vue";
+import Preferences from "@/views/Preferences.vue";
+import BoxReveal from "@/views/BoxReveal.vue";
+import Subscriptions from "../views/Subscriptions.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -31,6 +33,16 @@ const router = createRouter({
           component: Home,
         },
         {
+          path: "preferences",
+          name: "preferences",
+          component: Preferences
+        },
+        {
+          path: "box-reveal",
+          name: "box-reveal",
+          component: BoxReveal
+        },
+        {
           path: "about",
           name: "about",
           component: About,
@@ -41,9 +53,9 @@ const router = createRouter({
           component: Products,
         },
         {
-          path: "pricing",
-          name: "pricing",
-          component: Pricing,
+          path: "subscriptions",
+          name: "subscriptions",
+          component: Subscriptions,
         },
         {
           path: "contact",

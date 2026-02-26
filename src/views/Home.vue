@@ -46,21 +46,21 @@ onMounted(() => {
   const q = route.query.welcome
   console.log("Route query:", route.query)
   console.log("Welcome query:", q)
-  
-  if (q === 'back') { 
-    welcomeMessage.value = '✦ Welcome Back!'; 
-    showWelcome.value = true 
+
+  if (q === 'back') {
+    welcomeMessage.value = '✦ Welcome Back!';
+    showWelcome.value = true
     console.log("Showing welcome back")
   }
-  if (q === 'new') { 
-    welcomeMessage.value = '✦ Welcome to Hobby in a Box!'; 
-    showWelcome.value = true 
+  if (q === 'new') {
+    welcomeMessage.value = '✦ Welcome to Hobby in a Box!';
+    showWelcome.value = true
     console.log("Showing welcome new")
   }
   if (showWelcome.value) {
-    setTimeout(() => { 
-      showWelcome.value = false; 
-      router.replace({ query: {} }) 
+    setTimeout(() => {
+      showWelcome.value = false;
+      router.replace({ query: {} })
     }, 4000)
   }
 
@@ -99,15 +99,15 @@ function onMouseMove(e) {
   targetX.value = -my * 50
 }
 
-function onMouseEnter() { 
-  isHovered.value = true; 
-  isOpen.value = true 
+function onMouseEnter() {
+  isHovered.value = true;
+  isOpen.value = true
 }
 
 function onMouseLeave() {
-  isHovered.value = false; 
+  isHovered.value = false;
   isOpen.value = false
-  targetX.value = 0; 
+  targetX.value = 0;
   targetY.value = 0
 }
 
@@ -181,7 +181,7 @@ watch(isOpen, open => {
               <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
             </svg>
           </RouterLink>
-          <RouterLink to="/pricing" class="btn-secondary">
+          <RouterLink to="/subscriptions" class="btn-secondary">
             View Subscriptions
           </RouterLink>
         </div>
@@ -228,8 +228,8 @@ watch(isOpen, open => {
               </svg>
             </div>
             <div>
-              <h3 class="feat-title">Free Delivery</h3>
-              <p class="feat-desc">All materials included, delivered right to your doorstep.</p>
+              <h3 class="feat-title">Monthly Shipping</h3>
+              <p class="feat-desc">All materials included, shipped directly to your doorstep every month.</p>
             </div>
           </div>
         </div>

@@ -60,7 +60,7 @@ function getItemTotal(item) {
             <RouterLink class="nav-link" to="/products">Products</RouterLink>
           </li>
           <li class="nav-item">
-            <RouterLink class="nav-link" to="/pricing">Subscriptions</RouterLink>
+            <RouterLink class="nav-link" to="/subscriptions">Subscriptions</RouterLink>
           </li>
           <li class="nav-item">
             <RouterLink class="nav-link" to="/about">About Us</RouterLink>
@@ -81,7 +81,7 @@ function getItemTotal(item) {
         <div class="mobile-menu" :class="{ open: menuOpen }">
           <RouterLink class="mobile-nav-link" to="/" @click="menuOpen = false">Home</RouterLink>
           <RouterLink class="mobile-nav-link" to="/products" @click="menuOpen = false">Products</RouterLink>
-          <RouterLink class="mobile-nav-link" to="/pricing" @click="menuOpen = false">Subscriptions</RouterLink>
+          <RouterLink class="mobile-nav-link" to="/subscriptions" @click="menuOpen = false">Subscriptions</RouterLink>
           <RouterLink class="mobile-nav-link" to="/about" @click="menuOpen = false">About Us</RouterLink>
           <button class="mobile-logout-btn" @click="handleLogout">Logout</button>
         </div>

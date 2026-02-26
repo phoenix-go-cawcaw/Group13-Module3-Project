@@ -30,7 +30,7 @@ const totalAmount = computed(() => {
   }
   return (itemTotal.value + SHIPPING_COST).toFixed(2)
 })
-// Payment form state
+
 const showPaymentForm = ref(false)
 const isProcessing = ref(false)
 const paymentForm = ref({
@@ -124,7 +124,7 @@ const submitPayment = async () => {
       return
     }
 
-    const response = await fetch(`${API_URL}/payfast/process`, {
+    const response = await fetch(`${API_URL}/payments/process`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
