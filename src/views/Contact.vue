@@ -19,8 +19,7 @@ async function handleSubmit() {
     submitStatus.value = null
 
     try {
-        //Form simulation (No real functionality)
-        console.log('Contact form submitted:', form.value)
+        console.log('Contact form submitted:', form.value) //Form simulation (No real functionality)
         form.value = {
             name: '',
             email: '',

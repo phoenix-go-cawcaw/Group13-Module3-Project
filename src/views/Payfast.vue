@@ -3,8 +3,7 @@ import { useRouter } from "vue-router"
 import { onMounted } from "vue"
 
 const router = useRouter()
-
-// This page is no longer used — payment is handled inline on the Review page.
+// This page is no longer used
 // Redirect anyone who lands here back to the home page.
 onMounted(() => {
   router.replace("/")

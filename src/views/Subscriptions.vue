@@ -285,10 +285,6 @@ function featureStyle(cardIndex, featureIndex) {
   }
 }
 
-/* .card-wrapper {
-  /* opacity/transform driven by inline :style binding }*/
-
-
 .pricing-card {
   border-radius: 1.5rem;
   overflow: hidden;
@@ -414,7 +410,6 @@ function featureStyle(cardIndex, featureIndex) {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  /* opacity/transform driven by inline :style */
 }
 
 .feature-check {

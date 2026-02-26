@@ -307,7 +307,6 @@ function getItemTotal(item) {
   }
 }
 
-/* Cart modal */
 .modal-overlay {
   position: fixed;
   top: 0;

@@ -47,7 +47,6 @@ const questions = [
   },
 ]
 
-// Bootstrap Icons SVG paths
 const iconPaths = {
   'scissors':   'M3.5 3.5a.5.5 0 0 0 0 1h1.443l7.942 8.925A4 4 0 1 0 14.9 12.21l-2.241-2.52 2.208-2.483a.5.5 0 0 0-.756-.654L12 9.197 8.099 4.793A4 4 0 1 0 3.5 3.5m6.618 5.559-1.205 1.355-2.16-2.43 1.205-1.354zm-5.97-4.31a3 3 0 1 1-1.716 3.53zm8.706 8.394a3 3 0 1 1-3.53 1.716z',
   'search':     'M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.099zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0',
@@ -89,7 +88,6 @@ function next() {
   <div class="prefs-root">
     <div class="bg-gradient" />
 
-    <!-- Floating background icons -->
     <div class="bg-icons">
       <span class="float-icon" style="left:8%;top:10%;--d:0s;--dur:7s">
         <svg width="32" height="32" viewBox="0 0 16 16" fill="currentColor"><path :d="iconPaths['scissors']"/></svg>

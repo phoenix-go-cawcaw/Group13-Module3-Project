@@ -171,7 +171,6 @@ async function goToReview() {
                       <input id="postal_code" v-model="form.postal_code" type="text" required placeholder="8001" />
                     </div>
 
-                    <!-- Optional fields - can be removed if not needed -->
                     <div class="input-grid-2 optional-fields">
                       <div class="field">
                         <label for="province">Province / State (Optional)</label>

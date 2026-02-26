@@ -22,6 +22,8 @@ onMounted(() => {
 })
 
 function goToProducts() {
+  sessionStorage.setItem('showRecommendedBoxHint', 'true')
+  sessionStorage.setItem('recommendedBoxName', recommendedBox.name)
   router.push({ path: '/products', query: { welcome: 'new' } })
 }
 </script>
@@ -62,9 +64,9 @@ function goToProducts() {
           <div class="box-texture" />
           <Transition name="pop">
             <div v-if="phase >= 2" class="box-icon">
-              <!-- Bootstrap Icon: brush -->
+
               <svg width="48" height="48" viewBox="0 0 16 16" fill="#fefae0">
-                <path d="M15.825.12a.5.5 0 0 1 .132.584c-1.53 3.43-4.743 8.17-7.095 10.64a6.1 6.1 0 0 1-2.373 1.534c-.018.227-.06.538-.16.868-.201.659-.667 1.479-1.708 1.74a8.1 8.1 0 0 1-3.078.132 4 4 0 0 1-.562-.135 1.4 1.4 0 0 1-.466-.247.7.7 0 0 1-.204-.288.62.62 0 0 1 .004-.443c.095-.245.316-.38.461-.452.394-.197.625-.453.867-.826.095-.144.184-.297.287-.472l.117-.198c.151-.255.326-.54.546-.848.528-.739 1.201-.925 1.746-.896q.19.012.37.048c.09-.367.15-.717.188-.958.115-.718.242-1.133.462-1.519a6 6 0 0 1 .957-1.216C11.07 4.74 15.818 1.424 15.825.12"/>
+                <path d="M8 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3m4 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M5 6.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m.5 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M16 8c0 3.15-1.866 2.585-3.567 2.07C11.42 9.763 10.465 9.5 10 9.5c-.943 0-4 1.09-4 2.5s3 2.5 4 2.5c.667 0 1.5-.25 1.5-1s-.5-1-1-1-1 .5-1 1c0 .333.167.5.5.5.29 0 .5.21.5.5S10.29 15 10 15c-1 0-4-1.09-4-2.5C6 11.09 9 10 10 10c.535 0 1.508.263 2.433.535C14.866 11.085 16 10.585 16 8A8 8 0 1 0 .11 9.672c.01.065.02.13.032.194C.44 11.61 2 12.5 2 12.5c.667 0 1-.333 1-1s-.333-1-1-1c-.6 0-1 .4-1 1 0 .25.1.469.266.625A7 7 0 0 1 16 8"/>
               </svg>
             </div>
           </Transition>
@@ -96,7 +98,6 @@ function goToProducts() {
 
             <button class="cta-btn" @click="goToProducts">
               Explore All Products
-              <!-- Bootstrap Icon: arrow-right -->
               <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" style="margin-left:6px">
                 <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
               </svg>

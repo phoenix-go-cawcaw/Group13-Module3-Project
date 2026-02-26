@@ -137,7 +137,6 @@ watch(isOpen, open => {
     </Transition>
 
     <div class="home-grid">
-      <!-- LEFT: copy -->
       <div class="home-text slide-in-left">
         <div>
           <div class="eyebrow-label">✦ Curated Hobby Experiences</div>
