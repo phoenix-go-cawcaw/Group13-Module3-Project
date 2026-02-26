@@ -26,13 +26,13 @@ const BOX = 240
 const HALF = BOX / 2
 
 const tiles = [
-  { key: 'glass', bg: '#FF9B5E', border: '#C95A00', tx: '-80px', ty: '-260px', rot: '-15deg', delay: 0.05, size: 32 },
-  { key: 'utensils', bg: '#58D46A', border: '#1F8A2E', tx: '20px', ty: '-220px', rot: '10deg', delay: 0.10, size: 28 },
-  { key: 'footstep', bg: '#F06E4A', border: '#B5401B', tx: '100px', ty: '-240px', rot: '25deg', delay: 0.15, size: 32 },
-  { key: 'flask', bg: '#C68336', border: '#8A4F14', tx: '-120px', ty: '-120px', rot: '-30deg', delay: 0.12, size: 28 },
-  { key: 'sun', bg: '#FFD166', border: '#CC8A00', tx: '130px', ty: '-100px', rot: '15deg', delay: 0.18, size: 32 },
-  { key: 'brush', bg: '#D08A4A', border: '#9A5317', tx: '80px', ty: '-50px', rot: '45deg', delay: 0.20, size: 28 },
-  { key: 'waves', bg: '#F2B94B', border: '#B97800', tx: '-80px', ty: '-50px', rot: '-20deg', delay: 0.22, size: 28 },
+  { key: 'glass', bg: '#FF9B5E', border: '#C95A00', tx: '-68px', ty: '-155px', tz: '52px', z: 7, rot: '-12deg', delay: 0.05, size: 32 },
+  { key: 'utensils', bg: '#58D46A', border: '#1F8A2E', tx: '18px', ty: '-175px', tz: '-28px', z: 3, rot: '8deg', delay: 0.10, size: 28 },
+  { key: 'footstep', bg: '#F06E4A', border: '#B5401B', tx: '78px', ty: '-130px', tz: '62px', z: 8, rot: '20deg', delay: 0.15, size: 32 },
+  { key: 'flask', bg: '#C68336', border: '#8A4F14', tx: '-82px', ty: '-88px', tz: '-44px', z: 2, rot: '-24deg', delay: 0.12, size: 28 },
+  { key: 'sun', bg: '#FFD166', border: '#CC8A00', tx: '90px', ty: '-72px', tz: '-12px', z: 4, rot: '14deg', delay: 0.18, size: 32 },
+  { key: 'brush', bg: '#D08A4A', border: '#9A5317', tx: '24px', ty: '-42px', tz: '38px', z: 6, rot: '32deg', delay: 0.20, size: 28 },
+  { key: 'waves', bg: '#F2B94B', border: '#B97800', tx: '-46px', ty: '-28px', tz: '-58px', z: 1, rot: '-16deg', delay: 0.22, size: 28 },
 ]
 
 const particles = [
@@ -121,7 +121,6 @@ watch(isOpen, open => {
 
 <template>
   <main class="home-root">
-    <!-- Rest of your template remains exactly the same -->
     <div class="bg-wash" />
     <div class="bg-grain" />
 
@@ -251,24 +250,75 @@ watch(isOpen, open => {
 
           <div class="floaters-root">
             <div v-for="t in tiles" :key="t.key" class="tile" :class="{ 'tile-out': isOpen }" :style="{
-              '--tx': t.tx, '--ty': t.ty, '--rot': t.rot,
+              '--tx': t.tx, '--ty': t.ty, '--tz': t.tz, '--rot': t.rot,
               '--bg': t.bg, '--border': t.border,
+              zIndex: t.z,
               transitionDelay: isOpen ? t.delay + 's' : '0s',
             }">
-              <!-- SVG icons here - keep them as is -->
+
+              <!-- SVG icons -->
+
               <svg v-if="t.key === 'glass'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
                 stroke="#F3E6D3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 8l1.5 10.5A2 2 0 008.5 21h7a2 2 0 002-1.5L19 8M3 8h18" />
                 <path d="M10 12h4" />
               </svg>
-              <!-- Add other SVG icons exactly as they were -->
+
+              <!-- UTENSILS -->
+              <svg v-else-if="t.key === 'utensils'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
+                stroke="#F3E6D3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 3v7a4 4 0 008 0V3" />
+                <path d="M8 3v18" />
+                <path d="M20 3v18" />
+              </svg>
+
+              <!-- FOOTSTEP -->
+              <svg v-else-if="t.key === 'footstep'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
+                stroke="#F3E6D3" stroke-width="2.5">
+                <circle cx="12" cy="8" r="3" />
+                <path d="M6 21c0-4 3-7 6-7s6 3 6 7" />
+              </svg>
+
+              <!-- FLASK -->
+              <svg v-else-if="t.key === 'flask'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
+                stroke="#F3E6D3" stroke-width="2.5">
+                <path d="M10 2v6l-5 9a2 2 0 002 3h10a2 2 0 002-3l-5-9V2" />
+              </svg>
+
+              <!-- SUN -->
+              <svg v-else-if="t.key === 'sun'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
+                stroke="#F3E6D3" stroke-width="2.5">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M2 12h2M20 12h2" />
+              </svg>
+
+              <!-- BRUSH -->
+              <svg v-else-if="t.key === 'brush'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
+                stroke="#F3E6D3" stroke-width="2.5">
+                <path d="M3 21l6-6" />
+                <path d="M14 3l7 7-9 9H5v-7z" />
+              </svg>
+
+              <!-- WAVES -->
+              <svg v-else-if="t.key === 'waves'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
+                stroke="#F3E6D3" stroke-width="2.5">
+                <path d="M2 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0" />
+              </svg>
+
             </div>
 
             <div class="plant-wrap" :class="{ 'plant-out': isOpen }">
               <div class="plant-stem" />
               <div class="plant-leaf plant-leaf-left" />
               <div class="plant-leaf plant-leaf-right" />
-              <div class="plant-flower" />
+              <div class="plant-flower">
+                <div class="petal petal-1"></div>
+                <div class="petal petal-2"></div>
+                <div class="petal petal-3"></div>
+                <div class="petal petal-4"></div>
+                <div class="petal petal-5"></div>
+                <div class="petal petal-6"></div>
+              </div>
             </div>
 
             <div v-for="(p, i) in particles" :key="i" class="particle" :class="{ 'particle-out': isOpen }" :style="{
@@ -751,25 +801,33 @@ watch(isOpen, open => {
   box-shadow: 0 6px 20px rgba(62, 42, 27, .25);
   opacity: 0;
   transform: scale(.4) translate(0, 0) rotate(0deg);
-  transition: transform .55s cubic-bezier(.34, 1.56, .64, 1), opacity .35s ease;
+  transition: transform .55s cubic-bezier(.34, 1.56, .64, 1),
+    opacity .35s ease,
+    box-shadow .2s ease;
 }
 
 .tile-out {
   opacity: 1;
   transform:
-    scale(1) translate(var(--tx), calc(var(--ty) - 80px)) rotate(var(--rot));
+    scale(1) translate3d(var(--tx), calc(var(--ty) - 80px), var(--tz)) rotate(var(--rot));
+}
+
+.tile-out:hover {
+  transform: scale(1.1) translate3d(var(--tx), calc(var(--ty) - 80px), var(--tz)) rotate(var(--rot));
+  box-shadow: 0 12px 28px rgba(62, 42, 27, .35);
 }
 
 .plant-wrap {
   position: absolute;
   bottom: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   align-items: center;
   opacity: 0;
   transform: scale(0) translateY(50px);
   transition: transform .65s cubic-bezier(.34, 1.56, .64, 1) .1s, opacity .4s ease .1s;
 }
+
 
 .plant-out {
   opacity: 1;
@@ -803,21 +861,38 @@ watch(isOpen, open => {
 }
 
 .plant-flower {
-  position: absolute;
-  top: -18px;
-  width: 28px;
-  height: 44px;
-  background: linear-gradient(to bottom, #ffed2b, #d1d119);
-  border-radius: 999px;
+  position: relative;
+  width: 34px;
+  height: 34px;
+  background: radial-gradient(circle at 30% 30%, #ffed2b, #d1d119);
+  border-radius: 50%;
   border: 3px solid #cec813;
 }
+
+.petal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 36px;
+  background: #F3E6D3;
+  border-radius: 50%;
+  transform-origin: center center;
+}
+
+.petal-1 { transform: translate(-50%, -50%) rotate(0deg) translateY(-18px); }
+.petal-2 { transform: translate(-50%, -50%) rotate(60deg) translateY(-18px); }
+.petal-3 { transform: translate(-50%, -50%) rotate(120deg) translateY(-18px); }
+.petal-4 { transform: translate(-50%, -50%) rotate(180deg) translateY(-18px); }
+.petal-5 { transform: translate(-50%, -50%) rotate(240deg) translateY(-18px); }
+.petal-6 { transform: translate(-50%, -50%) rotate(300deg) translateY(-18px); }
 
 .particle {
   position: absolute;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #f2cb4c;
+  background: #ffce2b;
   opacity: 0;
   transform: scale(0) translate(0, 0);
   transition: transform .9s ease, opacity .9s ease;

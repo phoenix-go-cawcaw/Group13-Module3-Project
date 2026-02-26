@@ -10,9 +10,10 @@ import Products from "../views/Products.vue";
 import Review from "../views/Review.vue";
 import PaymentSuccess from "../views/PaymentSuccess.vue";
 import PaymentCancel from "../views/PaymentCancel.vue";
-import Preferences from "@/views/Preferences.vue";
-import BoxReveal from "@/views/BoxReveal.vue";
 import Subscriptions from "../views/Subscriptions.vue";
+import Preferences from "../views/Preferences.vue";
+import BoxReveal from "../views/BoxReveal.vue";
+import BlankLayout from "../layouts/BlankLayout.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,6 +22,28 @@ const router = createRouter({
       path: "/login",
       name: "login",
       component: Login,
+    },
+    {
+      path: "/preferences",
+      component: BlankLayout,
+      children: [
+        {
+          path: "",
+          name: "preferences",
+          component: Preferences,
+        },
+      ],
+    },
+    {
+      path: "/box-reveal",
+      component: BlankLayout,
+      children: [
+        {
+          path: "",
+          name: "box-reveal",
+          component: BoxReveal,
+        },
+      ],
     },
     {
       path: "/",
@@ -33,42 +56,32 @@ const router = createRouter({
           component: Home,
         },
         {
-          path: "preferences",
-          name: "preferences",
-          component: Preferences
-        },
-        {
-          path: "box-reveal",
-          name: "box-reveal",
-          component: BoxReveal
-        },
-        {
-          path: "about",
+          path: "/about",
           name: "about",
           component: About,
         },
         {
-          path: "products",
+          path: "/products",
           name: "products",
           component: Products,
         },
         {
-          path: "subscriptions",
+          path: "/subscriptions",
           name: "subscriptions",
           component: Subscriptions,
         },
         {
-          path: "contact",
+          path: "/contact",
           name: "contact",
           component: Contact,
         },
         {
-          path: "checkout",
+          path: "/checkout",
           name: "checkout",
           component: Checkout,
         },
         {
-          path: "review",
+          path: "/review",
           name: "review",
           component: Review,
         },

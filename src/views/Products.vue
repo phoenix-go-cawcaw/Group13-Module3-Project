@@ -185,7 +185,7 @@ watch(filteredProducts, async () => {
 <template>
   <main class="products-bg">
     <div class="container pb-5">
-      <div class="text-center mb-4 hero-section">
+      <div class="text-center mb-2 hero-section">
         <h1 class="luxury-title">Our Curated Collection</h1>
         <p class="luxury-subtitle">
           Discover thoughtfully crafted experiences designed to inspire.
