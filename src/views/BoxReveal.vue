@@ -22,7 +22,7 @@ onMounted(() => {
 })
 
 function goToProducts() {
-  router.push({ path: '/products' })
+  router.push({ path: '/products', query: { welcome: 'new' } })
 }
 </script>
 

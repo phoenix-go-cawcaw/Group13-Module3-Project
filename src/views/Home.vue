@@ -26,13 +26,13 @@ const BOX = 240
 const HALF = BOX / 2
 
 const tiles = [
-  { key: 'glass', bg: '#FF9B5E', border: '#C95A00', tx: '-68px', ty: '-155px', tz: '52px', z: 7, rot: '-12deg', delay: 0.05, size: 32 },
-  { key: 'utensils', bg: '#58D46A', border: '#1F8A2E', tx: '18px', ty: '-175px', tz: '-28px', z: 3, rot: '8deg', delay: 0.10, size: 28 },
-  { key: 'footstep', bg: '#F06E4A', border: '#B5401B', tx: '78px', ty: '-130px', tz: '62px', z: 8, rot: '20deg', delay: 0.15, size: 32 },
-  { key: 'flask', bg: '#C68336', border: '#8A4F14', tx: '-82px', ty: '-88px', tz: '-44px', z: 2, rot: '-24deg', delay: 0.12, size: 28 },
-  { key: 'sun', bg: '#FFD166', border: '#CC8A00', tx: '90px', ty: '-72px', tz: '-12px', z: 4, rot: '14deg', delay: 0.18, size: 32 },
-  { key: 'brush', bg: '#D08A4A', border: '#9A5317', tx: '24px', ty: '-42px', tz: '38px', z: 6, rot: '32deg', delay: 0.20, size: 28 },
-  { key: 'waves', bg: '#F2B94B', border: '#B97800', tx: '-46px', ty: '-28px', tz: '-58px', z: 1, rot: '-16deg', delay: 0.22, size: 28 },
+  { key: 'glass', bg: '#F4A0B0', border: '#C9607A', tx: '-72px', ty: '-180px', tz: '80px', z: 20, rot: '-12deg', delay: 0.05, size: 34 },
+  { key: 'footstep', bg: '#EF5350', border: '#B71C1C', tx: '78px', ty: '-165px', tz: '90px', z: 22, rot: '20deg', delay: 0.15, size: 34 },
+  { key: 'brush', bg: '#42A5F5', border: '#1565C0', tx: '95px', ty: '-80px', tz: '70px', z: 18, rot: '32deg', delay: 0.20, size: 30 },
+  { key: 'sun', bg: '#FFB300', border: '#E65100', tx: '110px', ty: '-115px', tz: '10px', z: 12, rot: '14deg', delay: 0.18, size: 32 },
+  { key: 'utensils', bg: '#66BB6A', border: '#2E7D32', tx: '18px', ty: '-220px', tz: '20px', z: 10, rot: '8deg', delay: 0.10, size: 30 },
+  { key: 'flask', bg: '#9C6BD6', border: '#5E35B1', tx: '-90px', ty: '-125px', tz: '-30px', z: 5, rot: '-24deg', delay: 0.12, size: 28 },
+  { key: 'waves', bg: '#FF7043', border: '#BF360C', tx: '-55px', ty: '-65px', tz: '-50px', z: 3, rot: '-16deg', delay: 0.22, size: 28 },
 ]
 
 const particles = [
@@ -42,31 +42,13 @@ const particles = [
 ]
 
 onMounted(() => {
-  // Check for welcome message
   const q = route.query.welcome
-  console.log("Route query:", route.query)
-  console.log("Welcome query:", q)
-
-  if (q === 'back') {
-    welcomeMessage.value = '✦ Welcome Back!';
-    showWelcome.value = true
-    console.log("Showing welcome back")
-  }
-  if (q === 'new') {
-    welcomeMessage.value = '✦ Welcome to Hobby in a Box!';
-    showWelcome.value = true
-    console.log("Showing welcome new")
-  }
+  if (q === 'back') { welcomeMessage.value = '✦ Welcome Back!'; showWelcome.value = true }
+  if (q === 'new') { welcomeMessage.value = '✦ Welcome to Hobby in a Box!'; showWelcome.value = true }
   if (showWelcome.value) {
-    setTimeout(() => {
-      showWelcome.value = false;
-      router.replace({ query: {} })
-    }, 4000)
+    setTimeout(() => { showWelcome.value = false; router.replace({ query: {} }) }, 4000)
   }
-
-  // Start animation loops
-  tick()
-  flapTick()
+  tick(); flapTick()
 })
 
 onBeforeUnmount(() => {
@@ -90,7 +72,6 @@ function flapTick() {
   flapRaf = requestAnimationFrame(flapTick)
 }
 
-// MOUSE MOVEMENT
 function onMouseMove(e) {
   const r = e.currentTarget.getBoundingClientRect()
   const mx = (e.clientX - r.left) / r.width - 0.5
@@ -99,16 +80,10 @@ function onMouseMove(e) {
   targetX.value = -my * 50
 }
 
-function onMouseEnter() {
-  isHovered.value = true;
-  isOpen.value = true
-}
-
+function onMouseEnter() { isHovered.value = true; isOpen.value = true }
 function onMouseLeave() {
-  isHovered.value = false;
-  isOpen.value = false
-  targetX.value = 0;
-  targetY.value = 0
+  isHovered.value = false; isOpen.value = false
+  targetX.value = 0; targetY.value = 0
 }
 
 watch(isOpen, open => {
@@ -143,6 +118,8 @@ watch(isOpen, open => {
           <path d="M14.1 6a7 7 0 00-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z" />
         </svg>
       </span>
+      <div class="deco-blob deco-blob-1"></div>
+      <div class="deco-blob deco-blob-2"></div>
     </div>
 
     <Transition name="banner">
@@ -160,8 +137,10 @@ watch(isOpen, open => {
     </Transition>
 
     <div class="home-grid">
+      <!-- LEFT: copy -->
       <div class="home-text slide-in-left">
         <div>
+          <div class="eyebrow-label">✦ Curated Hobby Experiences</div>
           <h1 class="hero-title">
             Welcome to<br />
             <span class="hero-accent">Hobby in a Box!</span>
@@ -180,9 +159,7 @@ watch(isOpen, open => {
               <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
             </svg>
           </RouterLink>
-          <RouterLink to="/subscriptions" class="btn-secondary">
-            View Subscriptions
-          </RouterLink>
+          <RouterLink to="/subscriptions" class="btn-secondary">View Subscriptions</RouterLink>
         </div>
 
         <div class="features-card">
@@ -202,7 +179,6 @@ watch(isOpen, open => {
               <p class="feat-desc">Arts & DIY, Green Living, Education 4 Kidz, or Culinary Discovery</p>
             </div>
           </div>
-
           <div class="feature-row">
             <div class="feat-icon" style="background:#A95A1C;transform:rotate(-2deg)">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F3E6D3" stroke-width="2"
@@ -215,7 +191,6 @@ watch(isOpen, open => {
               <p class="feat-desc">Subscribe monthly or make a one-time purchase — no commitments.</p>
             </div>
           </div>
-
           <div class="feature-row">
             <div class="feat-icon" style="background:#D1A877;transform:rotate(1deg)">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3E2A1B" stroke-width="2"
@@ -232,6 +207,29 @@ watch(isOpen, open => {
             </div>
           </div>
         </div>
+
+        <div class="trust-badges">
+          <div class="badge-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            Secure Checkout
+          </div>
+          <div class="badge-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            Fast Delivery
+          </div>
+          <div class="badge-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+            Quality Guaranteed
+          </div>
+        </div>
       </div>
 
       <div class="box-scene" @mousemove="onMouseMove" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave">
@@ -246,65 +244,51 @@ watch(isOpen, open => {
           <div class="face face-bottom" />
           <div class="face face-front">
             <div class="front-score" />
+            <div class="box-brand">HiaB</div>
           </div>
 
           <div class="floaters-root">
             <div v-for="t in tiles" :key="t.key" class="tile" :class="{ 'tile-out': isOpen }" :style="{
               '--tx': t.tx, '--ty': t.ty, '--tz': t.tz, '--rot': t.rot,
               '--bg': t.bg, '--border': t.border,
-              zIndex: t.z,
+              zIndex: isOpen ? t.z : 1,
               transitionDelay: isOpen ? t.delay + 's' : '0s',
             }">
-
-              <!-- SVG icons -->
-
               <svg v-if="t.key === 'glass'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
                 stroke="#F3E6D3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 8l1.5 10.5A2 2 0 008.5 21h7a2 2 0 002-1.5L19 8M3 8h18" />
                 <path d="M10 12h4" />
               </svg>
-
-              <!-- UTENSILS -->
               <svg v-else-if="t.key === 'utensils'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
                 stroke="#F3E6D3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 3v7a4 4 0 008 0V3" />
                 <path d="M8 3v18" />
                 <path d="M20 3v18" />
               </svg>
-
-              <!-- FOOTSTEP -->
               <svg v-else-if="t.key === 'footstep'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
                 stroke="#F3E6D3" stroke-width="2.5">
                 <circle cx="12" cy="8" r="3" />
                 <path d="M6 21c0-4 3-7 6-7s6 3 6 7" />
               </svg>
-
-              <!-- FLASK -->
               <svg v-else-if="t.key === 'flask'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
                 stroke="#F3E6D3" stroke-width="2.5">
                 <path d="M10 2v6l-5 9a2 2 0 002 3h10a2 2 0 002-3l-5-9V2" />
               </svg>
-
-              <!-- SUN -->
               <svg v-else-if="t.key === 'sun'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
                 stroke="#F3E6D3" stroke-width="2.5">
                 <circle cx="12" cy="12" r="4" />
-                <path d="M12 2v2M12 20v2M2 12h2M20 12h2" />
+                <path
+                  d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M17.66 6.34l-1.41 1.41M6.34 17.66l-1.41 1.41" />
               </svg>
-
-              <!-- BRUSH -->
               <svg v-else-if="t.key === 'brush'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
                 stroke="#F3E6D3" stroke-width="2.5">
                 <path d="M3 21l6-6" />
                 <path d="M14 3l7 7-9 9H5v-7z" />
               </svg>
-
-              <!-- WAVES -->
               <svg v-else-if="t.key === 'waves'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
                 stroke="#F3E6D3" stroke-width="2.5">
                 <path d="M2 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0" />
               </svg>
-
             </div>
 
             <div class="plant-wrap" :class="{ 'plant-out': isOpen }">
@@ -322,8 +306,7 @@ watch(isOpen, open => {
             </div>
 
             <div v-for="(p, i) in particles" :key="i" class="particle" :class="{ 'particle-out': isOpen }" :style="{
-              '--px': p.x + 'px',
-              '--py': p.y + 'px',
+              '--px': p.x + 'px', '--py': p.y + 'px',
               transitionDelay: isOpen ? (i * 0.07) + 's' : '0s',
             }" />
 
@@ -345,6 +328,28 @@ watch(isOpen, open => {
         </div>
       </div>
     </div>
+
+    <div class="stats-strip slide-in-up">
+      <div class="stat-item">
+        <div class="stat-number">2K+</div>
+        <div class="stat-label">Happy Subscribers</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-number">6</div>
+        <div class="stat-label">Hobby Categories</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">Curated Quality</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-number">ZA</div>
+        <div class="stat-label">Shipped Nationwide</div>
+      </div>
+    </div>
   </main>
 </template>
 
@@ -355,9 +360,10 @@ watch(isOpen, open => {
   position: relative;
   overflow: hidden;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem 1.5rem;
+  padding: 2rem 1.5rem 0;
   color: #3E2A1B;
 }
 
@@ -400,15 +406,38 @@ watch(isOpen, open => {
   right: 3%;
 }
 
+.deco-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.15;
+}
+
+.deco-blob-1 {
+  width: 400px;
+  height: 400px;
+  background: #C06A22;
+  top: -150px;
+  right: 5%;
+}
+
+.deco-blob-2 {
+  width: 300px;
+  height: 300px;
+  background: #A95A1C;
+  bottom: 5%;
+  left: 5%;
+}
+
 @keyframes floatA {
 
   0%,
   100% {
-    transform: translateY(0) rotate(0deg);
+    transform: translateY(0) rotate(0deg)
   }
 
   50% {
-    transform: translateY(-20px) rotate(5deg);
+    transform: translateY(-20px) rotate(5deg)
   }
 }
 
@@ -416,11 +445,11 @@ watch(isOpen, open => {
 
   0%,
   100% {
-    transform: translateY(0) rotate(0deg);
+    transform: translateY(0) rotate(0deg)
   }
 
   50% {
-    transform: translateY(20px) rotate(-5deg);
+    transform: translateY(20px) rotate(-5deg)
   }
 }
 
@@ -461,11 +490,11 @@ watch(isOpen, open => {
 
   0%,
   100% {
-    transform: rotate(0) scale(1);
+    transform: rotate(0) scale(1)
   }
 
   50% {
-    transform: rotate(20deg) scale(1.15);
+    transform: rotate(20deg) scale(1.15)
   }
 }
 
@@ -500,12 +529,24 @@ watch(isOpen, open => {
 @keyframes slideInLeft {
   from {
     transform: translateX(-40px);
-    opacity: 0;
+    opacity: 0
   }
 
   to {
     transform: translateX(0);
-    opacity: 1;
+    opacity: 1
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1
   }
 }
 
@@ -513,10 +554,30 @@ watch(isOpen, open => {
   animation: slideInLeft .85s ease-out both;
 }
 
+.slide-in-up {
+  animation: slideInUp .85s ease-out 0.5s both;
+}
+
 .home-text {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.75rem;
+}
+
+.eyebrow-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #C06A22;
+  background: rgba(192, 106, 34, .1);
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(192, 106, 34, .25);
+  width: fit-content;
 }
 
 .hero-title {
@@ -643,6 +704,26 @@ watch(isOpen, open => {
   line-height: 1.55;
 }
 
+.trust-badges {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.badge-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .78rem;
+  font-weight: 600;
+  color: #5A3A22;
+  opacity: .85;
+}
+
+.badge-item svg {
+  color: #C06A22;
+}
+
 .box-scene {
   width: 100%;
   max-width: 380px;
@@ -655,7 +736,6 @@ watch(isOpen, open => {
   perspective: 1200px;
   user-select: none;
   cursor: pointer;
-  transform: none;
 }
 
 .box-3d {
@@ -672,7 +752,7 @@ watch(isOpen, open => {
   transform: translateX(-50%);
   width: 240px;
   height: 70px;
-  background: rgba(169, 90, 28, .18);
+  background: rgba(180, 130, 0, .22);
   filter: blur(28px);
   border-radius: 50%;
   pointer-events: none;
@@ -683,29 +763,28 @@ watch(isOpen, open => {
   inset: 0;
   border-radius: 10px;
   backface-visibility: visible;
-  /* if laggy, switch to hidden (visibility may cause website render issues) */
 }
 
 .face-back {
-  background: #A95A1C;
+  background: linear-gradient(145deg, #D1A877 0%, #C06A22 100%);
   border: 2px solid #C06A22;
   transform: rotateY(180deg) translateZ(120px);
 }
 
 .face-right {
-  background: #C06A22;
+  background: linear-gradient(145deg, #D1A877 0%, #C06A22 100%);
   border: 2px solid #E2C49A;
   transform: rotateY(90deg) translateZ(120px);
 }
 
 .face-left {
-  background: #C06A22;
+  background: linear-gradient(145deg, #D1A877 0%, #C06A22 100%);
   border: 2px solid #E2C49A;
   transform: rotateY(-90deg) translateZ(120px);
 }
 
 .face-bottom {
-  background: #A95A1C;
+  background: linear-gradient(145deg, #D1A877 0%, #C06A22 100%);
   border: none;
   transform: rotateX(-90deg) translateZ(120px);
 }
@@ -726,7 +805,21 @@ watch(isOpen, open => {
   left: 0;
   right: 0;
   height: 1px;
-  background: rgba(243, 230, 211, .18);
+  background: rgba(180, 130, 0, .18);
+}
+
+.box-brand {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .18em;
+  color: rgba(120, 80, 0, .45);
+  text-transform: uppercase;
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 .flap-plane {
@@ -740,7 +833,7 @@ watch(isOpen, open => {
 
 .flap {
   position: absolute;
-  background: #D1A877;
+  background:linear-gradient(290deg, #D1A877 0%, #C06A22 100%);
   border: 1px solid #E2C49A;
   backface-visibility: visible;
 }
@@ -801,20 +894,17 @@ watch(isOpen, open => {
   box-shadow: 0 6px 20px rgba(62, 42, 27, .25);
   opacity: 0;
   transform: scale(.4) translate(0, 0) rotate(0deg);
-  transition: transform .55s cubic-bezier(.34, 1.56, .64, 1),
-    opacity .35s ease,
-    box-shadow .2s ease;
+  transition: transform .55s cubic-bezier(.34, 1.56, .64, 1), opacity .35s ease, box-shadow .2s ease;
 }
 
 .tile-out {
   opacity: 1;
-  transform:
-    scale(1) translate3d(var(--tx), calc(var(--ty) - 80px), var(--tz)) rotate(var(--rot));
+  transform: scale(1) translate3d(var(--tx), calc(var(--ty) - 80px), var(--tz)) rotate(var(--rot));
 }
 
 .tile-out:hover {
-  transform: scale(1.1) translate3d(var(--tx), calc(var(--ty) - 80px), var(--tz)) rotate(var(--rot));
-  box-shadow: 0 12px 28px rgba(62, 42, 27, .35);
+  transform: scale(1.12) translate3d(var(--tx), calc(var(--ty) - 85px), var(--tz)) rotate(var(--rot));
+  box-shadow: 0 14px 30px rgba(62, 42, 27, .38);
 }
 
 .plant-wrap {
@@ -826,8 +916,8 @@ watch(isOpen, open => {
   opacity: 0;
   transform: scale(0) translateY(50px);
   transition: transform .65s cubic-bezier(.34, 1.56, .64, 1) .1s, opacity .4s ease .1s;
+  z-index: 15;
 }
-
 
 .plant-out {
   opacity: 1;
@@ -880,12 +970,29 @@ watch(isOpen, open => {
   transform-origin: center center;
 }
 
-.petal-1 { transform: translate(-50%, -50%) rotate(0deg) translateY(-18px); }
-.petal-2 { transform: translate(-50%, -50%) rotate(60deg) translateY(-18px); }
-.petal-3 { transform: translate(-50%, -50%) rotate(120deg) translateY(-18px); }
-.petal-4 { transform: translate(-50%, -50%) rotate(180deg) translateY(-18px); }
-.petal-5 { transform: translate(-50%, -50%) rotate(240deg) translateY(-18px); }
-.petal-6 { transform: translate(-50%, -50%) rotate(300deg) translateY(-18px); }
+.petal-1 {
+  transform: translate(-50%, -50%) rotate(0deg) translateY(-18px);
+}
+
+.petal-2 {
+  transform: translate(-50%, -50%) rotate(60deg) translateY(-18px);
+}
+
+.petal-3 {
+  transform: translate(-50%, -50%) rotate(120deg) translateY(-18px);
+}
+
+.petal-4 {
+  transform: translate(-50%, -50%) rotate(180deg) translateY(-18px);
+}
+
+.petal-5 {
+  transform: translate(-50%, -50%) rotate(240deg) translateY(-18px);
+}
+
+.petal-6 {
+  transform: translate(-50%, -50%) rotate(300deg) translateY(-18px);
+}
 
 .particle {
   position: absolute;
@@ -907,7 +1014,7 @@ watch(isOpen, open => {
   position: absolute;
   width: 240px;
   height: 240px;
-  background: radial-gradient(circle, rgba(209, 168, 119, .9) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(248, 200, 30, .9) 0%, transparent 70%);
   border-radius: 50%;
   opacity: 0;
   transform: scale(.5);
@@ -949,12 +1056,12 @@ watch(isOpen, open => {
   0%,
   100% {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1)
   }
 
   50% {
     opacity: .3;
-    transform: scale(.8);
+    transform: scale(.8)
   }
 }
 
@@ -965,12 +1072,70 @@ watch(isOpen, open => {
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(14px)
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0)
+  }
+}
+
+.stats-strip {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 900px;
+  margin: 3rem auto 2rem;
+  background: rgba(62, 42, 27, .88);
+  backdrop-filter: blur(16px);
+  border-radius: 20px;
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 1rem;
+  border: 1px solid rgba(226, 196, 154, .2);
+  box-shadow: 0 20px 60px rgba(62, 42, 27, .25);
+}
+
+.stat-item {
+  text-align: center;
+  flex: 1;
+}
+
+.stat-number {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 900;
+  color: #F3E6D3;
+  line-height: 1;
+  letter-spacing: -.02em;
+}
+
+.stat-label {
+  font-size: .72rem;
+  font-weight: 600;
+  color: #D1A877;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-top: 4px;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 40px;
+  background: rgba(226, 196, 154, .2);
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .stats-strip {
+    gap: .5rem;
+    padding: 1.25rem 1rem;
+  }
+
+  .stat-label {
+    font-size: .65rem;
   }
 }
 </style>

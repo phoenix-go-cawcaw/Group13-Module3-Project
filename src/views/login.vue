@@ -95,7 +95,7 @@ async function handleSubmit() {
       if (!isLogin.value) {
         router.push({ name: 'preferences' })
       } else {
-        router.push({ path: '/' })
+        router.push({ path: '/', query: { welcome: 'back' } })
       }
     }, 1000)
 
