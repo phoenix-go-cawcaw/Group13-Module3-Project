@@ -1,14 +1,12 @@
 import express from "express";
 import {
-  createPayfast,
-  handleITN,
-  confirmPayment,
+  processPayment,
+  initializePayment,
 } from "../controllers/paymentController.js";
 
 const router = express.Router();
 
-router.post("/confirm", confirmPayment);
-router.post("/create", createPayfast);
-router.post("/itn", handleITN);
+router.post("/initialize", initializePayment);
+router.post("/process", processPayment);
 
 export default router;

@@ -7,7 +7,7 @@ import axios from 'axios'
 const router = useRouter()
 const { cartItems, cartTotal } = useCart()
 
-const API_URL = import.meta.env.VITE_API_URL || "https://sylas-indorsable-epifania.ngrok-free.dev"
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
 const SHIPPING_COST = 50
 const subscription = ref(null)
 const isSubscriptionCheckout = ref(false)
@@ -25,8 +25,7 @@ const form = ref({
 })
 
 onMounted(() => {
-  // Pre-fill if logged in
-  const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}')
+  const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}') //Pre-fills
   if (user.email) {
     form.value.email = user.email
   }

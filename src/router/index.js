@@ -6,7 +6,6 @@ import Checkout from "../views/Checkout.vue";
 import Contact from "../views/Contact.vue";
 import Home from "../views/Home.vue";
 import Login from "../views/login.vue";
-import Payfast from "../views/Payfast.vue";
 import Pricing from "../views/Subscriptions.vue";
 import Products from "../views/Products.vue";
 import Review from "../views/Review.vue";
@@ -60,11 +59,6 @@ const router = createRouter({
           path: "review",
           name: "review",
           component: Review,
-        },
-        {
-          path: "payfast",
-          name: "payfast",
-          component: Payfast,
         },
         {
           path: "/payment-success",

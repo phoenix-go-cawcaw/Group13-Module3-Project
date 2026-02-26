@@ -1,17 +1,17 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useCart } from '../composables/useCart'
 
 const route = useRoute()
 const router = useRouter()
-const { cartItems, cartTotal } = useCart()
+const { cartItems, cartTotal, clearCart } = useCart()
 
-const API_URL = import.meta.env.VITE_API_URL || "https://sylas-indorsable-epifania.ngrok-free.dev"
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
 
 const SHIPPING_COST = 50
 
-// Check both localStorage and sessionStorage for user
+// Checks localStorage and sessionStorage for user
 const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}')
 const userId = user.user_id || user.id || null
 
@@ -30,75 +30,146 @@ const totalAmount = computed(() => {
   }
   return (itemTotal.value + SHIPPING_COST).toFixed(2)
 })
+// Payment form state
+const showPaymentForm = ref(false)
+const isProcessing = ref(false)
+const paymentForm = ref({
+  cardNumber: '',
+  expiryDate: '',
+  cvv: '',
+  cardholderName: ''
+})
 
-const handlePayNow = async () => {
-  try {
-    // Check if user is logged in
-    if (!userId) {
-      alert("Please log in to continue");
-      router.push('/login');
-      return;
-    }
+const handlePayNow = () => {
 
-    // Use the checkoutId passed from Checkout view (no duplicate creation)
-    const checkoutId = route.query.checkoutId;
-    console.log("Using existing checkout ID:", checkoutId);
-
-    if (!checkoutId) {
-      alert("Checkout ID not found. Please return to checkout.");
-      return;
-    }
-
-    console.log("Step 1: Creating payment with PayFast...");
-
-    const paymentResponse = await fetch(`${API_URL}/payfast/create`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user_id: userId,
-        total_amount: totalAmount.value
-      })
-    });
-
-    const paymentData = await paymentResponse.json();
-    console.log("Payment response:", paymentData);
-
-    if (!paymentResponse.ok) {
-      console.error("Payment creation failed:", paymentData);
-      alert("Failed to create payment: " + (paymentData.error || "Unknown error"));
-      return;
-    }
-
-    if (!paymentData.paymentData) {
-      console.error("No payment data in response:", paymentData);
-      alert("Failed to prepare payment");
-      return;
-    }
-
-    console.log("Step 4: Redirecting to PayFast...");
-    console.log("Form data to submit:", paymentData.paymentData);
-
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = paymentData.payfastUrl;
-
-    Object.entries(paymentData.paymentData).forEach(([key, value]) => {
-      const input = document.createElement("input");
-      input.type = "hidden";
-      input.name = key;
-      input.value = String(value); // Ensure value is a string
-      form.appendChild(input);
-      console.log(`Added form field: ${key}=${value}`);
-    });
-
-    document.body.appendChild(form);
-    form.submit();
-
-  } catch (err) {
-    console.error("Payment error:", err);
-    alert("Error processing payment: " + err.message);
+  if (!userId) {
+    alert("Please log in to continue");
+    router.push('/login');
+    return;
   }
-};
+
+  showPaymentForm.value = true
+}
+
+const formatCardNumber = (value) => {
+  const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '')
+  const matches = v.match(/\d{4,16}/g)
+  const match = (matches && matches[0]) || ''
+  const parts = []
+
+  for (let i = 0, len = match.length; i < len; i += 4) {
+    parts.push(match.substring(i, i + 4))
+  }
+
+  if (parts.length) {
+    return parts.join(' ')
+  } else {
+    return value
+  }
+}
+
+const formatExpiryDate = (value) => {
+  const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '')
+  if (v.length >= 2) {
+    return v.slice(0, 2) + '/' + v.slice(2, 4)
+  }
+  return v
+}
+
+const formatCVV = (value) => {
+  return value.replace(/\s+/g, '').replace(/[^0-9]/gi, '').slice(0, 4)
+}
+
+const handleCardNumberInput = (e) => {
+  paymentForm.value.cardNumber = formatCardNumber(e.target.value)
+}
+
+const handleExpiryInput = (e) => {
+  paymentForm.value.expiryDate = formatExpiryDate(e.target.value)
+}
+
+const handleCVVInput = (e) => {
+  paymentForm.value.cvv = formatCVV(e.target.value)
+}
+
+const submitPayment = async () => {
+  if (!paymentForm.value.cardNumber || !paymentForm.value.expiryDate || !paymentForm.value.cvv || !paymentForm.value.cardholderName) {
+    alert('Please fill in all payment details')
+    return
+  }
+
+  const cardNumber = paymentForm.value.cardNumber.replace(/\s/g, '')
+  if (cardNumber.length < 13 || cardNumber.length > 19) {
+    alert('Invalid card number')
+    return
+  }
+
+  if (!/^\d{2}\/\d{2}$/.test(paymentForm.value.expiryDate)) {
+    alert('Invalid expiry date (use MM/YY format)')
+    return
+  }
+
+  if (!/^\d{3,4}$/.test(paymentForm.value.cvv)) {
+    alert('Invalid CVV')
+    return
+  }
+
+  isProcessing.value = true
+
+  try {
+    const checkoutId = route.query.checkoutId
+    
+    if (!checkoutId) {
+      alert('Checkout ID not found. Please return to checkout.')
+      return
+    }
+
+    const response = await fetch(`${API_URL}/payfast/process`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        checkoutId: parseInt(checkoutId),
+        cardNumber: paymentForm.value.cardNumber,
+        expiryDate: paymentForm.value.expiryDate,
+        cvv: paymentForm.value.cvv,
+        cardholderName: paymentForm.value.cardholderName,
+        amount: totalAmount.value,
+        email: route.query.email
+      })
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      alert('Payment failed: ' + (result.error || 'Unknown error'))
+      return
+    }
+
+    console.log('Payment successful:', result)
+    alert('Payment processed successfully! Transaction ID: ' + result.transactionId)
+
+    await clearCart()
+    router.push({
+      name: 'payment-success',
+      query: { checkoutId, transactionId: result.transactionId }
+    })
+  } catch (error) {
+    console.error('Payment error:', error)
+    alert('Error processing payment: ' + error.message)
+  } finally {
+    isProcessing.value = false
+  }
+}
+
+const cancelPayment = () => {
+  showPaymentForm.value = false
+  paymentForm.value = {
+    cardNumber: '',
+    expiryDate: '',
+    cvv: '',
+    cardholderName: ''
+  }
+}
 </script>
 
 <template>
@@ -198,7 +269,7 @@ const handlePayNow = async () => {
               </svg>
               Back to Checkout
             </button>
-            <button class="btn-primary" @click="handlePayNow">
+            <button class="btn-primary" @click="handlePayNow" v-if="!showPaymentForm">
               <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
@@ -206,6 +277,81 @@ const handlePayNow = async () => {
               </svg>
               Confirm &amp; Pay
             </button>
+          </div>
+
+          <div v-if="showPaymentForm" class="payment-form-overlay">
+            <div class="payment-form-container">
+              <div class="payment-form-header">
+                <h3>Enter Payment Details</h3>
+                <p class="form-subtitle">All payment information is processed securely</p>
+              </div>
+
+              <div class="payment-form-body">
+                <div class="form-group">
+                  <label for="cardholder">Cardholder Name *</label>
+                  <input
+                    id="cardholder"
+                    v-model="paymentForm.cardholderName"
+                    type="text"
+                    placeholder="John Doe"
+                    :disabled="isProcessing"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="card-number">Card Number *</label>
+                  <input
+                    id="card-number"
+                    :value="paymentForm.cardNumber"
+                    @input="handleCardNumberInput"
+                    type="text"
+                    placeholder="1234 5678 9012 3456"
+                    :disabled="isProcessing"
+                    maxlength="19"
+                  />
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="expiry">Expiry Date *</label>
+                    <input
+                      id="expiry"
+                      :value="paymentForm.expiryDate"
+                      @input="handleExpiryInput"
+                      type="text"
+                      placeholder="MM/YY"
+                      :disabled="isProcessing"
+                      maxlength="5"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="cvv">CVV *</label>
+                    <input
+                      id="cvv"
+                      :value="paymentForm.cvv"
+                      @input="handleCVVInput"
+                      type="text"
+                      placeholder="123"
+                      :disabled="isProcessing"
+                      maxlength="4"
+                    />
+                  </div>
+                </div>
+
+                <div class="form-info">
+                  <p><strong>Amount to pay:</strong> R{{ totalAmount }}</p>
+                </div>
+              </div>
+
+              <div class="payment-form-actions">
+                <button class="btn-cancel" @click="cancelPayment" :disabled="isProcessing">
+                  Cancel
+                </button>
+                <button class="btn-confirm" @click="submitPayment" :disabled="isProcessing">
+                  {{ isProcessing ? 'Processing...' : 'Pay Now' }}
+                </button>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -483,4 +629,151 @@ const handlePayNow = async () => {
   font-size: 0.8rem;
   color: #8b7355;
 }
+
+.payment-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.payment-form-container {
+  background: #ffffff;
+  border-radius: 0.625rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.payment-form-header {
+  background: #6b4423;
+  color: #ffffff;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.payment-form-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.form-subtitle {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.payment-form-body {
+  padding: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #3d2817;
+  margin-bottom: 0.5rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 0.4rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #6b4423;
+  box-shadow: 0 0 0 3px rgba(107, 68, 35, 0.1);
+}
+
+.form-group input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-info {
+  background: #f5ebe0;
+  border: 1px solid #e0d0c0;
+  padding: 1rem;
+  border-radius: 0.4rem;
+  margin: 1.25rem 0;
+  font-size: 0.9rem;
+  color: #3d2817;
+}
+
+.form-info p {
+  margin: 0;
+}
+
+.payment-form-actions {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.btn-cancel,
+.btn-confirm {
+  flex: 1;
+  padding: 0.875rem;
+  border: none;
+  border-radius: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background: #f5ebe0;
+  color: #3d2817;
+  border: 1px solid #d0c0b0;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: #e8d8c8;
+}
+
+.btn-confirm {
+  background: #6b4423;
+  color: #ffffff;
+  border: 1px solid #6b4423;
+}
+
+.btn-confirm:hover:not(:disabled) {
+  background: #5a3a1d;
+  border-color: #5a3a1d;
+}
+
+.btn-cancel:disabled,
+.btn-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 </style>

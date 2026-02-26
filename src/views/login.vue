@@ -5,7 +5,7 @@ import axios from 'axios'
 
 const router = useRouter()
 
-const API_URL = import.meta.env.VITE_API_URL || "https://sylas-indorsable-epifania.ngrok-free.dev"
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
 
 const username = ref('')
 const email = ref('')

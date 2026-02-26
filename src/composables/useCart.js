@@ -2,15 +2,12 @@ import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 
 const cartItems = ref([]);
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://sylas-indorsable-epifania.ngrok-free.dev";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export function useCart() {
   const getUserId = () => {
     try {
       let user = JSON.parse(localStorage.getItem("user") || "null");
-      // If not in localStorage, check sessionStorage
       if (!user) {
         user = JSON.parse(sessionStorage.getItem("user") || "null");
       }
@@ -27,13 +24,11 @@ export function useCart() {
     }
   };
 
-  // Checks if user is logged in
   const isLoggedIn = computed(() => {
     return !!getUserId();
   });
 
-  // Loads the cart from database for logged-in user
-  const loadCart = async () => {
+  const loadCart = async () => { //If user is logged in, will load cart from database
     const userId = getUserId();
     if (!userId) {
       cartItems.value = [];
@@ -52,7 +47,7 @@ export function useCart() {
     } catch (error) {
       console.error("Failed to load cart:", error);
       if (error.response?.status === 401) {
-        localStorage.removeItem("user"); // Handle unauthorized user data
+        localStorage.removeItem("user"); // Handles unauthorized user data
       }
     }
   };
@@ -75,7 +70,7 @@ export function useCart() {
         });
         existingItem.quantity += 1;
       } else {
-        // Adds new item to database
+        
         await axios.post(`${API_URL}/cart`, {
           user_id: userId,
           product_id: product.id,
