@@ -20,12 +20,16 @@ const allowedOrigins = (process.env.CORS_ORIGINS || "")
   .filter(Boolean);
 
 const localOriginPattern = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i;
+const ngrokPattern = /^https:\/\/.*\.ngrok(?:-free)?\.dev$/i;
+const lanPattern = /^https?:\/\/192\.168\.\d{1,3}\.\d{1,3}(:\d+)?$/i;
 
 app.use(
   cors({
     origin(origin, callback) {
       if (!origin) return callback(null, true);
       if (localOriginPattern.test(origin)) return callback(null, true);
+      if (ngrokPattern.test(origin)) return callback(null, true);
+      if (lanPattern.test(origin)) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error(`CORS blocked for origin: ${origin}`));
     },
@@ -35,14 +39,12 @@ app.use(
 
 app.use(express.json());
 
-app.use("/payfast/itn", express.urlencoded({ extended: false }));
-
 app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
 app.use("/cart", cartRoutes);
 app.use("/checkout", checkoutRoutes);
 app.use("/subscriptions", subscriptionRoutes);
-app.use("/payfast", paymentRoutes);
+app.use("/payments", paymentRoutes);
 
 app.get("/test-db", async (req, res) => {
   try {
@@ -58,7 +60,10 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+const HOST = process.env.HOST || "0.0.0.0";
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(
+    `Server running on http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}`,
+  );
 });

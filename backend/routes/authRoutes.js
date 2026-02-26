@@ -14,7 +14,6 @@ router.post("/register", async (req, res) => {
   }
 
   try {
-    // Checks if user exists
     const [existingUser] = await pool.query(
       "SELECT * FROM users WHERE email = ?",
       [normalizedEmail],
@@ -24,21 +23,23 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Hashes password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Inserts user
-    await pool.query(
+    const [result] = await pool.query(
       "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
       [username, normalizedEmail, hashedPassword],
     );
 
-    // Generates JWT
-    const token = jwt.sign({ email: normalizedEmail }, process.env.JWT_SECRET, {
+    const newUserId = result.insertId;
+
+    const token = jwt.sign({ user_id: newUserId, email: normalizedEmail }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
 
-    res.status(201).json({ token });
+    res.status(201).json({
+      token,
+      user: { user_id: newUserId, username, email: normalizedEmail }
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });

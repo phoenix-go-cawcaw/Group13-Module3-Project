@@ -1,63 +1,26 @@
 <script setup>
-import { useRoute, useRouter } from "vue-router"
-import axios from "axios"
+import { useRouter } from "vue-router"
+import { onMounted } from "vue"
 
-const route = useRoute()
 const router = useRouter()
 
-const checkoutId = route.params.id
-
-const handlePayment = async (status) => {
-  try {
-    await axios.post("http://localhost:5000/api/payments/payfast/update", {
-      checkoutId,
-      status
-    })
-
-    if (status === "paid") {
-      router.push("/payment-success")
-    } else {
-      router.push("/payment-failed")
-    }
-
-  } catch (error) {
-    console.error(error)
-  }
-}
-
+// This page is no longer used — payment is handled inline on the Review page.
+// Redirect anyone who lands here back to the home page.
+onMounted(() => {
+  router.replace("/")
+})
 </script>
 
 <template>
   <div class="container">
-    <h2>PayFast Secure Payment</h2>
-    <p>Checkout ID: {{ checkoutId }}</p>
-
-    <button @click="handlePayment('paid')" class="pay">
-      Pay Now
-    </button>
-
-    <button @click="handlePayment('failed')" class="cancel">
-      Cancel
-    </button>
+    <p>Redirecting...</p>
   </div>
 </template>
 
-<style>
+<style scoped>
 .container {
   text-align: center;
   margin-top: 100px;
-}
-
-.pay {
-  background: green;
-  color: white;
-  padding: 10px 20px;
-  margin: 10px;
-}
-
-.cancel {
-  background: red;
-  color: white;
-  padding: 10px 20px;
+  color: #8b7355;
 }
 </style>

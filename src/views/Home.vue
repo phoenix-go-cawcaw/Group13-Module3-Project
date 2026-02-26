@@ -8,51 +8,79 @@ const router = useRouter()
 const showWelcome = ref(false)
 const welcomeMessage = ref('')
 
-onMounted(() => {
-  const q = route.query.welcome
-  if (q === 'back') { welcomeMessage.value = '✦ Welcome Back!'; showWelcome.value = true }
-  if (q === 'new') { welcomeMessage.value = '✦ Welcome to Hobby in a Box!'; showWelcome.value = true }
-  if (showWelcome.value) {
-    setTimeout(() => { showWelcome.value = false; router.replace({ path: '/' }) }, 4000)
-  }
-})
-
 const isHovered = ref(false)
 const isOpen = ref(false)
 
 const targetX = ref(0), targetY = ref(0)
 const springX = ref(0), springY = ref(0)
 
+const backFlap = ref(0), targetBack = ref(0)
+const frontFlap = ref(0), targetFront = ref(0)
+const leftFlap = ref(0), targetLeft = ref(0)
+const rightFlap = ref(0), targetRight = ref(0)
+
 let rafId = null
+let flapRaf = null
+
+const BOX = 240
+const HALF = BOX / 2
+
+const tiles = [
+  { key: 'glass', bg: '#FF9B5E', border: '#C95A00', tx: '-68px', ty: '-155px', tz: '52px', z: 7, rot: '-12deg', delay: 0.05, size: 32 },
+  { key: 'utensils', bg: '#58D46A', border: '#1F8A2E', tx: '18px', ty: '-175px', tz: '-28px', z: 3, rot: '8deg', delay: 0.10, size: 28 },
+  { key: 'footstep', bg: '#F06E4A', border: '#B5401B', tx: '78px', ty: '-130px', tz: '62px', z: 8, rot: '20deg', delay: 0.15, size: 32 },
+  { key: 'flask', bg: '#C68336', border: '#8A4F14', tx: '-82px', ty: '-88px', tz: '-44px', z: 2, rot: '-24deg', delay: 0.12, size: 28 },
+  { key: 'sun', bg: '#FFD166', border: '#CC8A00', tx: '90px', ty: '-72px', tz: '-12px', z: 4, rot: '14deg', delay: 0.18, size: 32 },
+  { key: 'brush', bg: '#D08A4A', border: '#9A5317', tx: '24px', ty: '-42px', tz: '38px', z: 6, rot: '32deg', delay: 0.20, size: 28 },
+  { key: 'waves', bg: '#F2B94B', border: '#B97800', tx: '-46px', ty: '-28px', tz: '-58px', z: 1, rot: '-16deg', delay: 0.22, size: 28 },
+]
+
+const particles = [
+  { x: -120, y: -220 }, { x: 60, y: -260 }, { x: 140, y: -190 },
+  { x: -60, y: -170 }, { x: 100, y: -130 }, { x: -140, y: -130 },
+  { x: 20, y: -290 }, { x: -20, y: -100 },
+]
+
+onMounted(() => {
+  // Check for welcome message
+  const q = route.query.welcome
+  console.log("Route query:", route.query)
+  console.log("Welcome query:", q)
+
+  if (q === 'back') {
+    welcomeMessage.value = '✦ Welcome Back!';
+    showWelcome.value = true
+    console.log("Showing welcome back")
+  }
+  if (q === 'new') {
+    welcomeMessage.value = '✦ Welcome to Hobby in a Box!';
+    showWelcome.value = true
+    console.log("Showing welcome new")
+  }
+  if (showWelcome.value) {
+    setTimeout(() => {
+      showWelcome.value = false;
+      router.replace({ query: {} })
+    }, 4000)
+  }
+
+  // Start animation loops
+  tick()
+  flapTick()
+})
+
+onBeforeUnmount(() => {
+  cancelAnimationFrame(rafId)
+  cancelAnimationFrame(flapRaf)
+})
+
 function tick() {
   const k = 0.08
   springX.value += (targetX.value - springX.value) * k
   springY.value += (targetY.value - springY.value) * k
   rafId = requestAnimationFrame(tick)
 }
-tick()
-onBeforeUnmount(() => cancelAnimationFrame(rafId))
 
-//MOUSE MOVEMENT
-function onMouseMove(e) {
-  const r = e.currentTarget.getBoundingClientRect()
-  const mx = (e.clientX - r.left) / r.width - 0.5
-  const my = (e.clientY - r.top) / r.height - 0.5
-  targetY.value = mx * 50
-  targetX.value = -my * 50
-}
-function onMouseEnter() { isHovered.value = true; isOpen.value = true }
-function onMouseLeave() {
-  isHovered.value = false; isOpen.value = false
-  targetX.value = 0; targetY.value = 0
-}
-
-const backFlap = ref(0), targetBack = ref(0)
-const frontFlap = ref(0), targetFront = ref(0)
-const leftFlap = ref(0), targetLeft = ref(0)
-const rightFlap = ref(0), targetRight = ref(0)
-
-let flapRaf = null
 function flapTick() {
   const k = 0.10
   backFlap.value += (targetBack.value - backFlap.value) * k
@@ -61,8 +89,27 @@ function flapTick() {
   rightFlap.value += (targetRight.value - rightFlap.value) * k
   flapRaf = requestAnimationFrame(flapTick)
 }
-flapTick()
-onBeforeUnmount(() => cancelAnimationFrame(flapRaf))
+
+// MOUSE MOVEMENT
+function onMouseMove(e) {
+  const r = e.currentTarget.getBoundingClientRect()
+  const mx = (e.clientX - r.left) / r.width - 0.5
+  const my = (e.clientY - r.top) / r.height - 0.5
+  targetY.value = mx * 50
+  targetX.value = -my * 50
+}
+
+function onMouseEnter() {
+  isHovered.value = true;
+  isOpen.value = true
+}
+
+function onMouseLeave() {
+  isHovered.value = false;
+  isOpen.value = false
+  targetX.value = 0;
+  targetY.value = 0
+}
 
 watch(isOpen, open => {
   targetBack.value = open ? 120 : 0
@@ -70,30 +117,10 @@ watch(isOpen, open => {
   targetLeft.value = open ? -130 : 0
   targetRight.value = open ? 130 : 0
 })
-
-const BOX = 240
-const HALF = BOX / 2
-
-const tiles = [
-  { key: 'glass', bg: '#FF9B5E', border: '#C95A00', tx: '-80px', ty: '-260px', rot: '-15deg', delay: 0.05, size: 32 },
-  { key: 'utensils', bg: '#58D46A', border: '#1F8A2E', tx: '20px', ty: '-220px', rot: '10deg', delay: 0.10, size: 28 },
-  { key: 'footstep', bg: '#F06E4A', border: '#B5401B', tx: '100px', ty: '-240px', rot: '25deg', delay: 0.15, size: 32 },
-  { key: 'flask', bg: '#C68336', border: '#8A4F14', tx: '-120px', ty: '-120px', rot: '-30deg', delay: 0.12, size: 28 },
-  { key: 'sun', bg: '#FFD166', border: '#CC8A00', tx: '130px', ty: '-100px', rot: '15deg', delay: 0.18, size: 32 },
-  { key: 'brush', bg: '#D08A4A', border: '#9A5317', tx: '80px', ty: '-50px', rot: '45deg', delay: 0.20, size: 28 },
-  { key: 'waves', bg: '#F2B94B', border: '#B97800', tx: '-80px', ty: '-50px', rot: '-20deg', delay: 0.22, size: 28 },
-]
-
-const particles = [
-  { x: -120, y: -220 }, { x: 60, y: -260 }, { x: 140, y: -190 },
-  { x: -60, y: -170 }, { x: 100, y: -130 }, { x: -140, y: -130 },
-  { x: 20, y: -290 }, { x: -20, y: -100 },
-]
 </script>
 
 <template>
   <main class="home-root">
-
     <div class="bg-wash" />
     <div class="bg-grain" />
 
@@ -133,9 +160,7 @@ const particles = [
     </Transition>
 
     <div class="home-grid">
-
       <div class="home-text slide-in-left">
-
         <div>
           <h1 class="hero-title">
             Welcome to<br />
@@ -155,13 +180,12 @@ const particles = [
               <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
             </svg>
           </RouterLink>
-          <RouterLink to="/pricing" class="btn-secondary">
+          <RouterLink to="/subscriptions" class="btn-secondary">
             View Subscriptions
           </RouterLink>
         </div>
 
         <div class="features-card">
-
           <div class="feature-row">
             <div class="feat-icon" style="background:#C06A22;transform:rotate(3deg)">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F3E6D3" stroke-width="2">
@@ -203,17 +227,14 @@ const particles = [
               </svg>
             </div>
             <div>
-              <h3 class="feat-title">Free Delivery</h3>
-              <p class="feat-desc">All materials included, delivered right to your doorstep.</p>
+              <h3 class="feat-title">Monthly Shipping</h3>
+              <p class="feat-desc">All materials included, shipped directly to your doorstep every month.</p>
             </div>
           </div>
-
         </div>
       </div>
 
       <div class="box-scene" @mousemove="onMouseMove" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave">
-        <!-- BOX DISPLAY -->
-
         <div class="box-3d"
           :style="{ transform: `translateY(130px) rotateX(${springX - 25}deg) rotateY(${springY}deg)` }">
 
@@ -228,74 +249,76 @@ const particles = [
           </div>
 
           <div class="floaters-root">
-
             <div v-for="t in tiles" :key="t.key" class="tile" :class="{ 'tile-out': isOpen }" :style="{
-              '--tx': t.tx, '--ty': t.ty, '--rot': t.rot,
+              '--tx': t.tx, '--ty': t.ty, '--tz': t.tz, '--rot': t.rot,
               '--bg': t.bg, '--border': t.border,
+              zIndex: t.z,
               transitionDelay: isOpen ? t.delay + 's' : '0s',
             }">
-              <!-- GlassWater -->
+
+              <!-- SVG icons -->
+
               <svg v-if="t.key === 'glass'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
                 stroke="#F3E6D3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 8l1.5 10.5A2 2 0 008.5 21h7a2 2 0 002-1.5L19 8M3 8h18" />
                 <path d="M10 12h4" />
               </svg>
-              <!-- Utensils -->
+
+              <!-- UTENSILS -->
               <svg v-else-if="t.key === 'utensils'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
                 stroke="#F3E6D3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2" />
-                <path d="M7 2v20" />
-                <path d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7" />
+                <path d="M4 3v7a4 4 0 008 0V3" />
+                <path d="M8 3v18" />
+                <path d="M20 3v18" />
               </svg>
-              <!-- Footprints -->
+
+              <!-- FOOTSTEP -->
               <svg v-else-if="t.key === 'footstep'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
-                stroke="#F3E6D3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path
-                  d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 11-4 0z" />
-                <path
-                  d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 104 0z" />
+                stroke="#F3E6D3" stroke-width="2.5">
+                <circle cx="12" cy="8" r="3" />
+                <path d="M6 21c0-4 3-7 6-7s6 3 6 7" />
               </svg>
-              <!-- FlaskConical -->
+
+              <!-- FLASK -->
               <svg v-else-if="t.key === 'flask'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
-                stroke="#F3E6D3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10 2v7.31l-5.48 8.38A1 1 0 005.4 19h13.2a1 1 0 00.88-1.31L14 9.31V2" />
-                <line x1="8.5" y1="2" x2="15.5" y2="2" />
+                stroke="#F3E6D3" stroke-width="2.5">
+                <path d="M10 2v6l-5 9a2 2 0 002 3h10a2 2 0 002-3l-5-9V2" />
               </svg>
-              <!-- Sun -->
+
+              <!-- SUN -->
               <svg v-else-if="t.key === 'sun'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
-                stroke="#3E2A1B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="5" />
-                <line x1="12" y1="1" x2="12" y2="3" />
-                <line x1="12" y1="21" x2="12" y2="23" />
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                <line x1="1" y1="12" x2="3" y2="12" />
-                <line x1="21" y1="12" x2="23" y2="12" />
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                stroke="#F3E6D3" stroke-width="2.5">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M2 12h2M20 12h2" />
               </svg>
-              <!-- Brush -->
+
+              <!-- BRUSH -->
               <svg v-else-if="t.key === 'brush'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
-                stroke="#F3E6D3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path
-                  d="M18.37 2.63 14 7l-1.59-1.59a2 2 0 00-2.82 0L8 7l9 9 1.59-1.59a2 2 0 000-2.82L17 10l4.37-4.37a2.12 2.12 0 00-3-3z" />
-                <path d="M9 8c-2 3-4 3.5-7 4l8 8c1-.5 3-1.5 4-7" />
-                <path d="M14.5 17.5 4.5 15" />
+                stroke="#F3E6D3" stroke-width="2.5">
+                <path d="M3 21l6-6" />
+                <path d="M14 3l7 7-9 9H5v-7z" />
               </svg>
-              <!-- Waves -->
+
+              <!-- WAVES -->
               <svg v-else-if="t.key === 'waves'" :width="t.size" :height="t.size" viewBox="0 0 24 24" fill="none"
-                stroke="#F3E6D3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
-                <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
-                <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+                stroke="#F3E6D3" stroke-width="2.5">
+                <path d="M2 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0" />
               </svg>
+
             </div>
 
             <div class="plant-wrap" :class="{ 'plant-out': isOpen }">
               <div class="plant-stem" />
               <div class="plant-leaf plant-leaf-left" />
               <div class="plant-leaf plant-leaf-right" />
-              <div class="plant-flower" />
+              <div class="plant-flower">
+                <div class="petal petal-1"></div>
+                <div class="petal petal-2"></div>
+                <div class="petal petal-3"></div>
+                <div class="petal petal-4"></div>
+                <div class="petal petal-5"></div>
+                <div class="petal petal-6"></div>
+              </div>
             </div>
 
             <div v-for="(p, i) in particles" :key="i" class="particle" :class="{ 'particle-out': isOpen }" :style="{
@@ -313,7 +336,6 @@ const particles = [
             <div class="flap flap-left" :style="{ transform: `rotateY(${leftFlap}deg)` }" />
             <div class="flap flap-right" :style="{ transform: `rotateY(${rightFlap}deg)` }" />
           </div>
-
         </div>
 
         <div class="box-prompt fade-in-late">
@@ -321,11 +343,11 @@ const particles = [
           {{ isHovered ? "It's full of hobbies!" : "Hover to open the box!" }}
           <span class="prompt-spark">✦</span>
         </div>
-
       </div>
     </div>
   </main>
 </template>
+
 
 <style scoped>
 .home-root {
@@ -779,25 +801,33 @@ const particles = [
   box-shadow: 0 6px 20px rgba(62, 42, 27, .25);
   opacity: 0;
   transform: scale(.4) translate(0, 0) rotate(0deg);
-  transition: transform .55s cubic-bezier(.34, 1.56, .64, 1), opacity .35s ease;
+  transition: transform .55s cubic-bezier(.34, 1.56, .64, 1),
+    opacity .35s ease,
+    box-shadow .2s ease;
 }
 
 .tile-out {
   opacity: 1;
   transform:
-    scale(1) translate(var(--tx), calc(var(--ty) - 80px)) rotate(var(--rot));
+    scale(1) translate3d(var(--tx), calc(var(--ty) - 80px), var(--tz)) rotate(var(--rot));
+}
+
+.tile-out:hover {
+  transform: scale(1.1) translate3d(var(--tx), calc(var(--ty) - 80px), var(--tz)) rotate(var(--rot));
+  box-shadow: 0 12px 28px rgba(62, 42, 27, .35);
 }
 
 .plant-wrap {
   position: absolute;
   bottom: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   align-items: center;
   opacity: 0;
   transform: scale(0) translateY(50px);
   transition: transform .65s cubic-bezier(.34, 1.56, .64, 1) .1s, opacity .4s ease .1s;
 }
+
 
 .plant-out {
   opacity: 1;
@@ -831,21 +861,38 @@ const particles = [
 }
 
 .plant-flower {
-  position: absolute;
-  top: -18px;
-  width: 28px;
-  height: 44px;
-  background: linear-gradient(to bottom, #ffed2b, #d1d119);
-  border-radius: 999px;
+  position: relative;
+  width: 34px;
+  height: 34px;
+  background: radial-gradient(circle at 30% 30%, #ffed2b, #d1d119);
+  border-radius: 50%;
   border: 3px solid #cec813;
 }
+
+.petal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 36px;
+  background: #F3E6D3;
+  border-radius: 50%;
+  transform-origin: center center;
+}
+
+.petal-1 { transform: translate(-50%, -50%) rotate(0deg) translateY(-18px); }
+.petal-2 { transform: translate(-50%, -50%) rotate(60deg) translateY(-18px); }
+.petal-3 { transform: translate(-50%, -50%) rotate(120deg) translateY(-18px); }
+.petal-4 { transform: translate(-50%, -50%) rotate(180deg) translateY(-18px); }
+.petal-5 { transform: translate(-50%, -50%) rotate(240deg) translateY(-18px); }
+.petal-6 { transform: translate(-50%, -50%) rotate(300deg) translateY(-18px); }
 
 .particle {
   position: absolute;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #f2cb4c;
+  background: #ffce2b;
   opacity: 0;
   transform: scale(0) translate(0, 0);
   transition: transform .9s ease, opacity .9s ease;

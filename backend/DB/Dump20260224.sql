@@ -57,17 +57,17 @@ DROP TABLE IF EXISTS `checkout`;
 CREATE TABLE `checkout` (
   `checkout_id` int NOT NULL AUTO_INCREMENT,
   `user_id` int DEFAULT NULL,
-  `full_name` varchar(100) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
   `address` varchar(255) NOT NULL,
   `city` varchar(100) NOT NULL,
   `postal_code` varchar(20) NOT NULL,
   `total_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `voucher_code` varchar(50) DEFAULT NULL,
   `status` varchar(20) DEFAULT 'pending',
-  PRIMARY KEY (`checkout_id`),
-  KEY `user_id` (`user_id`),
-  CONSTRAINT `checkout_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`checkout_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -77,7 +77,7 @@ CREATE TABLE `checkout` (
 
 LOCK TABLES `checkout` WRITE;
 /*!40000 ALTER TABLE `checkout` DISABLE KEYS */;
-INSERT INTO `checkout` VALUES (1,NULL,'Phoenix','phoenix@gmail.com','Street','City','1000',0.00,NULL,'pending');
+INSERT INTO `checkout` VALUES (1,NULL,'Phoenix','Chung','phoenix@gmail.com','Street','City','1000',0.00,'pending',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 /*!40000 ALTER TABLE `checkout` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -92,11 +92,15 @@ CREATE TABLE `payments` (
   `payment_id` int NOT NULL AUTO_INCREMENT,
   `checkout_id` int NOT NULL,
   `provider` varchar(50) DEFAULT NULL,
+  `transaction_id` varchar(100) DEFAULT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
   `status` varchar(20) DEFAULT 'pending',
+  `payment_data` json DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`payment_id`),
   KEY `checkout_id` (`checkout_id`),
+  KEY `transaction_id` (`transaction_id`),
   CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`checkout_id`) REFERENCES `checkout` (`checkout_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -189,7 +193,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Phoenix','phoenix@gmail.com','$2b$10$aiRUt7hvSd.AZGgINOEIOuVtJypcBA1ka/8wubCjPO.36EjBuibSW'),(2,'Yaqoob','yaqoob@gmail.com','$2b$10$sjYMfTfnwgOoEwGhjFASouG7q9NGPEng8GMdwfh/f5KeaSeq5sKcS');
+INSERT INTO `users` VALUES (1,'Phoenix','phoenix@gmail.com','$2b$10$aiRUt7hvSd.AZGgINOEIOuVtJypcBA1ka/8wubCjPO.36EjBuibSW');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

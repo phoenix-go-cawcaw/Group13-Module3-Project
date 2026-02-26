@@ -7,6 +7,7 @@ import { ref } from 'vue'
 const router = useRouter()
 const { cartItems, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart()
 const showCartModal = ref(false)
+const menuOpen = ref(false)
 
 function handleLogout() {
   localStorage.removeItem('token')
@@ -31,13 +32,27 @@ function getItemTotal(item) {
   <div class="auth-layout">
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <div class="container-fluid">
-        <img :src="hobbyLogo" alt="Hobby in a Box Logo" style="height: 65px;" class="me-2" />
+        <img :src="hobbyLogo" alt="Hobby in a Box Logo" class="nav-logo me-2" />
 
         <RouterLink class="navbar-brand brand-title me-auto" to="/">
           Hobby in a Box
         </RouterLink>
 
-        <ul class="navbar-nav ms-auto me-0 align-items-lg-center gap-lg-2">
+        <div class="d-flex align-items-center gap-2 d-lg-none">
+          <button class="btn btn-outline-light cart-btn" @click="toggleCartModal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+            </svg>
+            <span class="cart-badge" v-if="cartCount > 0">{{ cartCount }}</span>
+          </button>
+          <button class="hamburger-btn" @click="menuOpen = !menuOpen" aria-label="Toggle navigation">
+            <span class="bar" :class="{ open: menuOpen }"></span>
+            <span class="bar" :class="{ open: menuOpen }"></span>
+            <span class="bar" :class="{ open: menuOpen }"></span>
+          </button>
+        </div>
+
+        <ul class="navbar-nav ms-auto me-0 align-items-center gap-2 d-none d-lg-flex">
           <li class="nav-item">
             <RouterLink class="nav-link" to="/">Home</RouterLink>
           </li>
@@ -45,29 +60,31 @@ function getItemTotal(item) {
             <RouterLink class="nav-link" to="/products">Products</RouterLink>
           </li>
           <li class="nav-item">
-            <RouterLink class="nav-link" to="/pricing">Subscriptions</RouterLink>
+            <RouterLink class="nav-link" to="/subscriptions">Subscriptions</RouterLink>
           </li>
           <li class="nav-item">
             <RouterLink class="nav-link" to="/about">About Us</RouterLink>
           </li>
-
-          <li class="nav-item ms-lg-2">
+          <li class="nav-item">
             <button class="btn btn-outline-light cart-btn" @click="toggleCartModal">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cart"
-                viewBox="0 0 16 16">
-                <path
-                  d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
               </svg>
               <span class="cart-badge" v-if="cartCount > 0">{{ cartCount }}</span>
             </button>
           </li>
-
-          <li class="nav-item ms-lg-2">
-            <button class="btn btn-sm btn-outline-light" type="button" @click="handleLogout">
-              Logout
-            </button>
+          <li class="nav-item">
+            <button class="btn btn-sm btn-outline-light" type="button" @click="handleLogout">Logout</button>
           </li>
         </ul>
+
+        <div class="mobile-menu" :class="{ open: menuOpen }">
+          <RouterLink class="mobile-nav-link" to="/" @click="menuOpen = false">Home</RouterLink>
+          <RouterLink class="mobile-nav-link" to="/products" @click="menuOpen = false">Products</RouterLink>
+          <RouterLink class="mobile-nav-link" to="/subscriptions" @click="menuOpen = false">Subscriptions</RouterLink>
+          <RouterLink class="mobile-nav-link" to="/about" @click="menuOpen = false">About Us</RouterLink>
+          <button class="mobile-logout-btn" @click="handleLogout">Logout</button>
+        </div>
       </div>
     </nav>
 
@@ -102,12 +119,9 @@ function getItemTotal(item) {
                 </div>
 
                 <button @click="removeFromCart(item.id)" class="remove-btn">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    viewBox="0 0 16 16">
-                    <path
-                      d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                    <path fill-rule="evenodd"
-                      d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
                   </svg>
                 </button>
               </div>
@@ -145,12 +159,28 @@ function getItemTotal(item) {
   background-color: #3E2A1B !important;
 }
 
+.nav-logo {
+  height: 45px;
+}
+
+@media (min-width: 992px) {
+  .nav-logo {
+    height: 65px;
+  }
+}
+
 .brand-title {
   color: #F3E6D3;
   font-weight: 800;
   text-decoration: none;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande',
-    'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-size: 1rem;
+}
+
+@media (min-width: 992px) {
+  .brand-title {
+    font-size: 1.25rem;
+  }
 }
 
 .nav-link {
@@ -181,7 +211,7 @@ function getItemTotal(item) {
 
 .cart-btn {
   position: relative;
-  padding: 8px 12px;
+  padding: 6px 10px;
 }
 
 .cart-badge {
@@ -192,15 +222,88 @@ function getItemTotal(item) {
   color: white;
   border-radius: 50%;
   padding: 2px 6px;
-  font-size: 12px;
+  font-size: 11px;
   min-width: 18px;
   text-align: center;
 }
 
-.auth-layout {
-  padding-top: 80px;
+.hamburger-btn {
+  background: none;
+  border: 1px solid #E2C49A;
+  border-radius: 4px;
+  padding: 5px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
+.bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background-color: #E2C49A;
+  border-radius: 2px;
+  transition: all 0.25s ease;
+}
+
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  padding: 8px 0 12px;
+  border-top: 1px solid rgba(226, 196, 154, 0.2);
+  margin-top: 8px;
+}
+
+.mobile-menu.open {
+  display: flex;
+}
+
+.mobile-nav-link {
+  color: #E2C49A;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 10px 4px;
+  border-bottom: 1px solid rgba(226, 196, 154, 0.1);
+  transition: color 0.15s;
+}
+
+.mobile-nav-link:hover,
+.mobile-nav-link.router-link-active {
+  color: #F3E6D3;
+}
+
+.mobile-logout-btn {
+  margin-top: 10px;
+  background: none;
+  border: 1px solid #E2C49A;
+  color: #E2C49A;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  align-self: flex-start;
+  transition: background 0.15s;
+}
+
+.mobile-logout-btn:hover {
+  background-color: #A95A1C;
+  border-color: #A95A1C;
+  color: #fff;
+}
+
+.auth-layout {
+  padding-top: 65px;
+}
+
+@media (min-width: 992px) {
+  .auth-layout {
+    padding-top: 85px;
+  }
+}
+
+/* Cart modal */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -216,20 +319,22 @@ function getItemTotal(item) {
 .cart-modal {
   background: white;
   width: 450px;
+  max-width: 100vw;
   height: 100%;
   display: flex;
   flex-direction: column;
   animation: slideIn 0.3s ease;
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
+@media (max-width: 480px) {
+  .cart-modal {
+    width: 100vw;
   }
+}
 
-  to {
-    transform: translateX(0);
-  }
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }
 
 .cart-modal-header {

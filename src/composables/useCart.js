@@ -2,26 +2,33 @@ import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 
 const cartItems = ref([]);
-const API_URL = "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export function useCart() {
   const getUserId = () => {
     try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      return user.user_id || null;
+      let user = JSON.parse(localStorage.getItem("user") || "null");
+      if (!user) {
+        user = JSON.parse(sessionStorage.getItem("user") || "null");
+      }
+      console.log("User:", user);
+      if (!user) return null;
+      if (user.user_id) return user.user_id;
+      if (user.user?.id) return user.user.id;
+      if (user.id) return user.id;
+
+      return null;
     } catch (error) {
-      console.error("Failed to parse user from localStorage:", error);
+      console.error("Failed to parse user:", error);
       return null;
     }
   };
 
-  // Checks if user is logged in
   const isLoggedIn = computed(() => {
     return !!getUserId();
   });
 
-  // Loads the cart from database for logged-in user
-  const loadCart = async () => {
+  const loadCart = async () => { //If user is logged in, will load cart from database
     const userId = getUserId();
     if (!userId) {
       cartItems.value = [];
@@ -40,7 +47,7 @@ export function useCart() {
     } catch (error) {
       console.error("Failed to load cart:", error);
       if (error.response?.status === 401) {
-        localStorage.removeItem("user"); // Handle unauthorized user data
+        localStorage.removeItem("user"); // Handles unauthorized user data
       }
     }
   };
@@ -63,7 +70,7 @@ export function useCart() {
         });
         existingItem.quantity += 1;
       } else {
-        // Adds new item to database
+        
         await axios.post(`${API_URL}/cart`, {
           user_id: userId,
           product_id: product.id,
