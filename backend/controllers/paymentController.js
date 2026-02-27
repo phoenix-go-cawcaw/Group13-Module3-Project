@@ -68,6 +68,11 @@ export const processPayment = async (req, res) => {
     }
 
     const paymentAmount = parseFloat(amount);
+    if (Number.isNaN(paymentAmount) || paymentAmount <= 0) {
+      return res.status(400).json({
+        error: "Invalid payment amount",
+      });
+    }
 
     const transactionId = generateTransactionId();
 
@@ -79,9 +84,9 @@ export const processPayment = async (req, res) => {
 
     await pool.execute(
       `UPDATE checkout
-       SET status = 'completed'
+       SET status = 'completed', total_amount = ?
        WHERE checkout_id = ?`,
-      [checkoutId],
+      [paymentAmount, checkoutId],
     );
 
     console.log(`[processPayment] Success - Transaction ID: ${transactionId}`);
