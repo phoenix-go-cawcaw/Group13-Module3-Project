@@ -39,6 +39,16 @@ VITE_APP_TITLE=Hobby in a Box
 
 ### Backend (`backend/.env`)
 
+Create it from the example first:
+
+```bash
+cd backend
+copy .env.example .env
+cd ..
+```
+
+Then update values:
+
 ```dotenv
 DB_HOST=localhost
 DB_USER=your_mysql_user
@@ -54,6 +64,8 @@ JWT_EXPIRES_IN=7d
 # Optional for custom origins:
 # CORS_ORIGINS=http://localhost:5173
 ```
+
+Note: backend code also accepts `DB_PASS` as a fallback, but `DB_PASSWORD` is preferred.
 
 ## 3. Create and Load Database
 
